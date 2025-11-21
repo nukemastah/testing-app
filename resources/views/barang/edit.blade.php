@@ -18,41 +18,8 @@
             min-height: 100vh;
         }
 
-        .sidebar {
-            width: 200px;
-            background: linear-gradient(to bottom, #b4746f, #8b5a57);
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            margin-top: 50px;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 10px;
-        }
-
-        .sidebar-menu a {
-            display: block;
-            padding: 15px 25px;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background-color: #d4a574;
-            color: #333;
-        }
-
         .main-content {
-            margin-left: 200px;
+            margin-left: 250px;
             flex: 1;
             padding: 20px;
         }
@@ -253,13 +220,7 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <ul class="sidebar-menu">
-            <li><a href="{{ route('dashboard') }}">dashboard</a></li>
-            <li><a href="{{ route('barang.index') }}" class="active">kelola barang</a></li>
-            <li><a href="{{ route('penjualan.index') }}">penjualan</a></li>
-        </ul>
-    </div>
+    @include('components.sidebar')
 
     <div class="main-content">
         <div class="header">
@@ -323,6 +284,21 @@
                            required 
                            min="1">
                     @error('kuantitas')
+                        <div class="validation-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="pemasok_id" class="form-label">Pemasok</label>
+                    <select id="pemasok_id" name="pemasok_id" class="form-input">
+                        <option value="">-- Pilih Pemasok --</option>
+                        @foreach($pemasoks as $pemasok)
+                        <option value="{{ $pemasok->id }}" {{ old('pemasok_id', $barang->pemasok_id) == $pemasok->id ? 'selected' : '' }}>
+                            {{ $pemasok->kode_pemasok }} - {{ $pemasok->nama_pemasok }}
+                        </option>
+                        @endforeach
+                    </select>
+                    @error('pemasok_id')
                         <div class="validation-error">{{ $message }}</div>
                     @enderror
                 </div>

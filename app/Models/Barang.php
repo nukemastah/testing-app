@@ -10,5 +10,10 @@ class Barang extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['nama', 'harga', 'kuantitas'];
+    protected $fillable = ['nama', 'harga', 'kuantitas', 'pemasok_id'];
+
+    public function pemasok()
+    {
+        return $this->belongsTo(Pemasok::class, 'pemasok_id');
+    }
 }

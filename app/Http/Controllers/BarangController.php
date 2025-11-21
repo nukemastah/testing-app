@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\Pemasok;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -11,6 +12,7 @@ class BarangController extends Controller
     public function index(Request $request)
     {
         $barangs = Barang::latest()->paginate(7);
+        $pemasoks = Pemasok::all();
         $deletedBarang = Barang::onlyTrashed()->latest()->first();
 
         // Filter berdasarkan waktu
@@ -19,7 +21,7 @@ class BarangController extends Controller
         $monthlyCount = Barang::whereMonth('created_at', Carbon::now()->month)->count();
         $yearlyCount = Barang::whereYear('created_at', Carbon::now()->year)->count();
 
-        return view('barang.index', compact('barangs', 'deletedBarang', 'dailyCount', 'weeklyCount', 'monthlyCount', 'yearlyCount'));
+        return view('barang.index', compact('barangs', 'pemasoks', 'deletedBarang', 'dailyCount', 'weeklyCount', 'monthlyCount', 'yearlyCount'));
     }
 
     public function store(Request $request)
@@ -28,9 +30,10 @@ class BarangController extends Controller
             'nama' => 'required|string|max:255',
             'harga' => 'required|integer|min:0',
             'kuantitas' => 'required|integer|min:1',
+            'pemasok_id' => 'nullable|exists:pemasoks,id',
         ]);
 
-        Barang::create($request->only('nama', 'harga', 'kuantitas'));
+        Barang::create($request->only('nama', 'harga', 'kuantitas', 'pemasok_id'));
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
     }
@@ -38,6 +41,7 @@ class BarangController extends Controller
     public function edit($id)
     {
         $barang = Barang::findOrFail($id);
+        $pemasoks = Pemasok::all();
         $barangs = Barang::latest()->get();
         $deletedBarang = Barang::onlyTrashed()->latest()->first();
 
@@ -47,7 +51,7 @@ class BarangController extends Controller
         $monthlyCount = Barang::whereMonth('created_at', Carbon::now()->month)->count();
         $yearlyCount = Barang::whereYear('created_at', Carbon::now()->year)->count();
 
-        return view('barang.edit', compact('barang', 'barangs', 'deletedBarang', 'dailyCount', 'weeklyCount', 'monthlyCount', 'yearlyCount'));
+        return view('barang.edit', compact('barang', 'pemasoks', 'barangs', 'deletedBarang', 'dailyCount', 'weeklyCount', 'monthlyCount', 'yearlyCount'));
     }
 
     public function update(Request $request, $id)
@@ -56,10 +60,11 @@ class BarangController extends Controller
             'nama' => 'required|string|max:255',
             'harga' => 'required|integer|min:0',
             'kuantitas' => 'required|integer|min:1',
+            'pemasok_id' => 'nullable|exists:pemasoks,id',
         ]);
 
         $barang = Barang::findOrFail($id);
-        $barang->update($request->only('nama', 'harga', 'kuantitas'));
+        $barang->update($request->only('nama', 'harga', 'kuantitas', 'pemasok_id'));
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil diperbarui!');
     }

@@ -18,41 +18,8 @@
             min-height: 100vh;
         }
 
-        .sidebar {
-            width: 200px;
-            background: linear-gradient(to bottom, #b4746f, #8b5a57);
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            margin-top: 50px;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 10px;
-        }
-
-        .sidebar-menu a {
-            display: block;
-            padding: 15px 25px;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-        background-color: #d4a574;
-        color: #333;
-        transform: translateX(5px);
-    }
-
         .main-content {
-            margin-left: 200px;
+            margin-left: 250px;
             flex: 1;
             padding: 20px;
         }
@@ -246,13 +213,7 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <ul class="sidebar-menu">
-            <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ route('barang.index') }}">Kelola Barang</a></li>
-            <li><a href="{{ route('penjualan.index') }}">Penjualan</a></li>
-        </ul>
-    </div>
+    @include('components.sidebar')
 
     <div class="main-content">
         <div class="header">

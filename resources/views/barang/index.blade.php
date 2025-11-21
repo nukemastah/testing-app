@@ -18,42 +18,8 @@
             min-height: 100vh;
         }
 
-        .sidebar {
-            width: 200px;
-            background: linear-gradient(to bottom, #b4746f, #8b5a57);
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            margin-top: 50px;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 10px;
-        }
-
-        .sidebar-menu a {
-            display: block;
-            padding: 15px 25px;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background-color: #d4a574;
-            color: #333;
-            transform: translateX(5px);
-        }
-
         .main-content {
-            margin-left: 200px;
+            margin-left: 250px;
             flex: 1;
             padding: 20px;
         }
@@ -434,13 +400,7 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <ul class="sidebar-menu">
-            <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ route('barang.index') }}">Kelola Barang</a></li>
-            <li><a href="{{ route('penjualan.index') }}">Penjualan</a></li>
-        </ul>
-    </div>
+    @include('components.sidebar')
 
     <div class="main-content">
         <div class="header">
@@ -467,6 +427,7 @@
                         <th>NAMA BARANG</th>
                         <th>KUANTITAS</th>
                         <th>HARGA</th>
+                        <th>PEMASOK</th>
                         <th>AKSI</th>
                     </tr>
                 </thead>
@@ -477,6 +438,7 @@
                         <td>{{ $barang->nama }}</td>
                         <td>{{ $barang->kuantitas }}</td>
                         <td>Rp {{ number_format($barang->harga, 0, ',', '.') }}</td>
+                        <td>{{ $barang->pemasok->nama_pemasok ?? '-' }}</td>
                         <td>
                             <div class="action-buttons">
                                 <a href="/barang/{{ $barang->id }}/edit" class="btn-edit">Edit</a>
@@ -490,7 +452,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="no-data">Belum ada data barang.</td>
+                        <td colspan="6" class="no-data">Belum ada data barang.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -528,6 +490,7 @@
                             <th>NAMA BARANG</th>
                             <th>HARGA</th>
                             <th>KUANTITAS</th>
+                            <th>PEMASOK</th>
                             <th>TAMBAH</th>
                         </tr>
                     </thead>
@@ -536,6 +499,14 @@
                             <td><input type="text" name="nama" class="form-input" placeholder="Masukkan nama barang" required></td>
                             <td><input type="number" name="harga" class="form-input" placeholder="0" required min="0"></td>
                             <td><input type="number" name="kuantitas" class="form-input" placeholder="0" required min="1"></td>
+                            <td>
+                                <select name="pemasok_id" class="form-input" style="padding: 15px 12px; border: none; background: transparent; font-size: 14px; text-align: center; outline: none; width: 100%;">
+                                    <option value="">-- Pilih Pemasok --</option>
+                                    @foreach($pemasoks as $pemasok)
+                                    <option value="{{ $pemasok->id }}">{{ $pemasok->kode_pemasok }} - {{ $pemasok->nama_pemasok }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
                             <td><button type="submit" class="btn-tambah">TAMBAH</button></td>
                         </tr>
                     </tbody>
