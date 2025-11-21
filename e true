@@ -1,0 +1,45 @@
+* [33m38cebb3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m sidebar dan pemasok
+[31m|[m * [33m06263bd[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #3 from nukemastah/UI
+[31m|[m[31m/[m[33m|[m 
+[31m|[m * [33mbff232d[m[33m ([m[1;31morigin/UI[m[33m)[m perubahan warna background login dan buttonnya & lupa password juga
+[31m|[m * [33meefeed7[m perbaikan fitur print pdf di dashbaord (print semua dan print tabel masing masing)
+[31m|[m * [33mda86664[m fitur print pdf dan pagination di data penjualan dan laporan laba rugi
+* [33m|[m [33me1e0519[m undo dockerfile and railway.json
+* [33m|[m [33m72542ad[m Switch to Docker for Railway deployment
+* [33m|[m [33m6a71d92[m web route buat database fix
+* [33m|[m [33m5678a76[m web route buat database
+* [33m|[m [33ma7efa94[m pagination dashboard
+[33m|[m[33m/[m  
+* [33m47e025c[m perbaikan tabel,tombol previous dan next,tambahan fitur edit,permanis UI sidebar
+*   [33me90d661[m Merge branch 'UI' of https://github.com/nukemastah/testing-app into UI
+[34m|[m[35m\[m  
+[34m|[m *   [33m9be5af5[m Merge branch 'master' into UI
+[34m|[m [36m|[m[1;31m\[m  
+* [36m|[m [1;31m\[m   [33md26bd41[m Chore: Sync master branch
+[36m|[m[1;33m\[m [36m\[m [1;31m\[m  
+[36m|[m [1;33m|[m[36m/[m [1;31m/[m  
+[36m|[m[36m/[m[1;33m|[m [1;31m|[m   
+[36m|[m * [1;31m|[m [33m5c3223b[m UI (#1)
+[36m|[m [1;31m|[m[1;31m/[m  
+[36m|[m * [33mc34b5f5[m pagination dashboard dan barang
+* [1;33m|[m [33m732eb1e[m Perubahan tabel dasboard
+* [1;33m|[m [33m34f49ac[m perubahan tombol log out,sidebar menu,data penjualan yang kosong
+[1;33m|[m[1;33m/[m  
+* [33m61bb277[m tombol cancel tabel
+*   [33me3b526d[m Merge remote-tracking branch 'origin/master' into UI
+[1;34m|[m[1;35m\[m  
+[1;34m|[m * [33ma576f75[m feat:progress fitur dan design
+[1;34m|[m * [33m2a0edcf[m penjualan
+[1;34m|[m * [33m7dfcfb7[m dashboard fix
+[1;34m|[m[1;34m/[m  
+* [33mad09680[m[33m ([m[1;31morigin/tambahanUI/UX[m[33m)[m barang app blade
+* [33maa5a1fa[m welcome blade
+* [33m8666262[m profile controller dan blade
+*   [33m89d3f0b[m Merge branch 'master' of github.com:nukemastah/testing-app
+[1;36m|[m[31m\[m  
+[1;36m|[m * [33m7f1882c[m Delete bayu
+* [31m|[m [33m501922f[m Add Github Actions workflow
+* [31m|[m [33m421bb72[m del bayu
+[31m|[m[31m/[m  
+* [33mc1e82a5[m 2nd commit
+* [33m45f8e6b[m testing-app 1
