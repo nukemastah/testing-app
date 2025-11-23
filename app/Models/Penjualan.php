@@ -13,11 +13,17 @@ class Penjualan extends Model
         'jumlah',
         'total_harga',
         'tanggal',
+        'pelanggan_id',
     ];
 
     public function barang()
     {
         return $this->belongsTo(Barang::class);
+    }
+
+    public function pelanggan()
+    {
+        return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
     }
 
     protected $casts = [

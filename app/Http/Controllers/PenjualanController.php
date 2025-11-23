@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\Penjualan;
+use App\Models\Pelanggan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -14,7 +15,7 @@ class PenjualanController extends Controller
         // Ambil filter dari query string
         $filter = $request->query('filter', 'all');
 
-        $query = Penjualan::with('barang');
+        $query = Penjualan::with(['barang', 'pelanggan']);
 
         switch ($filter) {
             case 'daily':
@@ -36,8 +37,9 @@ class PenjualanController extends Controller
 
         $penjualans = $query->latest()->get();
         $barangs = Barang::all();
+        $pelanggans = Pelanggan::all();
 
-        return view('penjualan.index', compact('penjualans', 'barangs'));
+        return view('penjualan.index', compact('penjualans', 'barangs', 'pelanggans'));
     }
 
     public function store(Request $request)
@@ -46,6 +48,7 @@ class PenjualanController extends Controller
         'barang_id' => 'required|exists:barangs,id',
         'jumlah' => 'required|integer|min:1',
         'harga_jual' => 'nullable|numeric|min:0',
+        'pelanggan_id' => 'nullable|exists:pelanggans,id',
     ]);
 
     $barang = Barang::findOrFail($request->barang_id);
@@ -62,6 +65,7 @@ class PenjualanController extends Controller
         'jumlah' => $request->jumlah,
         'total_harga' => $totalHarga,
         'tanggal' => now(),
+        'pelanggan_id' => $request->pelanggan_id ?? null,
     ]);
 
     // Kurangi stok barang

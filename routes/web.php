@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PemasokController;
+use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\DashboardController;
 use App\Models\Barang;
 use Illuminate\Support\Facades\Route;
@@ -60,7 +61,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/master/pemasok', [PemasokController::class, 'index'])->name('pemasok.index');
     
     // Master - Placeholder routes for other modules
-    Route::get('/master/pelanggan', function () { return view('master.pelanggan'); })->name('pelanggan.index');
+    // Master - Pelanggan routes (CRUD)
+    Route::resource('pelanggan', PelangganController::class)->only(['index','store','update','destroy']);
+    Route::get('/master/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
     Route::get('/master/rekening', function () { return view('master.rekening'); })->name('rekening.index');
     Route::get('/master/pengguna', function () { return view('master.pengguna'); })->name('pengguna.index');
 

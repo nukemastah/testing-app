@@ -242,10 +242,17 @@
                     @endforeach
                 </select>
                 
+                <select name="pelanggan_id">
+                    <option value="">Pilih Pelanggan (opsional)</option>
+                    @foreach($pelanggans as $pelanggan)
+                        <option value="{{ $pelanggan->id }}">{{ $pelanggan->kode_pelanggan ?? ('P-' . $pelanggan->id) }} - {{ $pelanggan->nama_pelanggan }}</option>
+                    @endforeach
+                </select>
+
                 <input type="number" name="jumlah" placeholder="Jumlah" required min="1">
-                
+
                 <input type="number" name="harga_jual" placeholder="Harga Jual (Opsional)" min="0">
-                
+
                 <button type="submit" class="btn-jual">Jual</button>
             </form>
         </div>
@@ -258,6 +265,7 @@
                         <th>NAMA BARANG</th>
                         <th>KUANTITAS</th>
                         <th>HARGA</th>
+                        <th>PELANGGAN</th>
                         <th>JUAL BARANG</th>
                     </tr>
                 </thead>
@@ -265,9 +273,10 @@
                     @forelse($penjualans as $key => $p)
                     <tr>
                         <td>{{ sprintf('%02d', $key + 1) }}</td>
-                        <<td>{{ $p->barang ? $p->barang->nama : 'Barang tidak tersedia' }}</td>
+                        <td>{{ $p->barang ? $p->barang->nama : 'Barang tidak tersedia' }}</td>
                         <td>{{ $p->jumlah }} pcs</td>
                         <td>Rp {{ number_format($p->total_harga, 0, ',', '.') }}</td>
+                        <td>{{ $p->pelanggan ? $p->pelanggan->nama_pelanggan : '-' }}</td>
                         <td>
                             <form method="POST" action="{{ route('penjualan.destroy', $p->id) }}" onsubmit="return confirm('Yakin ingin membatalkan penjualan ini?')" style="display: inline;">
                                 @csrf
@@ -278,7 +287,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="no-data">Belum ada data penjualan.</td>
+                        <td colspan="6" class="no-data">Belum ada data penjualan.</td>
                     </tr>
                     @endforelse
                 </tbody>
