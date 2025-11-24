@@ -5,6 +5,8 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PemasokController;
 use App\Http\Controllers\PelangganController;
+use App\Http\Controllers\PembayaranPenjualanController;
+use App\Http\Controllers\PembayaranPembelianController;
 use App\Http\Controllers\DashboardController;
 use App\Models\Barang;
 use Illuminate\Support\Facades\Route;
@@ -60,12 +62,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('pemasok', PemasokController::class);
     Route::get('/master/pemasok', [PemasokController::class, 'index'])->name('pemasok.index');
     
-    // Master - Placeholder routes for other modules
     // Master - Pelanggan routes (CRUD)
     Route::resource('pelanggan', PelangganController::class)->only(['index','store','update','destroy']);
     Route::get('/master/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
-    Route::get('/master/rekening', function () { return view('master.rekening'); })->name('rekening.index');
-    Route::get('/master/pengguna', function () { return view('master.pengguna'); })->name('pengguna.index');
 
     // Transaksi routes
     Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
@@ -73,12 +72,15 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
     Route::post('/penjualan/undo', [PenjualanController::class, 'undo'])->name('penjualan.undo');
 
-    // Transaksi - Placeholder routes
-    Route::get('/transaksi/biaya', function () { return view('transaksi.biaya'); })->name('biaya.index');
-    Route::get('/transaksi/pindah-saldo', function () { return view('transaksi.pindahSaldo'); })->name('pindahSaldo.index');
-    Route::get('/transaksi/pembelian', function () { return view('transaksi.pembelian'); })->name('pembelian.index');
-    Route::get('/transaksi/pembayaran-pembelian', function () { return view('transaksi.pembayaranPembelian'); })->name('pembayaranPembelian.index');
-    Route::get('/transaksi/pembayaran-penjualan', function () { return view('transaksi.pembayaranPenjualan'); })->name('pembayaranPenjualan.index');
+    // Transaksi - Pembayaran Penjualan routes
+    Route::get('/transaksi/pembayaran-penjualan', [PembayaranPenjualanController::class, 'index'])->name('pembayaran-penjualan.index');
+    Route::post('/pembayaran-penjualan', [PembayaranPenjualanController::class, 'store'])->name('pembayaran-penjualan.store');
+    Route::delete('/pembayaran-penjualan/{pembayaranPenjualan}', [PembayaranPenjualanController::class, 'destroy'])->name('pembayaran-penjualan.destroy');
+
+    // Transaksi - Pembayaran Pembelian routes
+    Route::get('/transaksi/pembayaran-pembelian', [PembayaranPembelianController::class, 'index'])->name('pembayaran-pembelian.index');
+    Route::post('/pembayaran-pembelian', [PembayaranPembelianController::class, 'store'])->name('pembayaran-pembelian.store');
+    Route::delete('/pembayaran-pembelian/{pembayaranPembelian}', [PembayaranPembelianController::class, 'destroy'])->name('pembayaran-pembelian.destroy');
 
     // Laporan routes
     Route::get('/laporan/mutasi-rekening', function () { return view('laporan.mutasiRekening'); })->name('laporan.mutasiRekening');

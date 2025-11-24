@@ -3,15 +3,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pelanggan;
-use App\Models\Rekening;
 
 class PelangganController extends Controller
 {
     public function index()
     {
-        $pelanggans = Pelanggan::with('rekening')->latest()->get();
-        $rekenings = Rekening::all();
-        return view('master.pelanggan', compact('pelanggans', 'rekenings'));
+        $pelanggans = Pelanggan::latest()->get();
+        return view('master.pelanggan', compact('pelanggans'));
     }
 
     public function store(Request $request)
@@ -19,14 +17,9 @@ class PelangganController extends Controller
         $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
             'alamat' => 'nullable|string',
-            'rekening_id' => 'nullable|exists:rekenings,id',
         ]);
 
-        $pelanggan = Pelanggan::create([
-            'nama_pelanggan' => $request->nama_pelanggan,
-            'alamat' => $request->alamat,
-            'rekening_id' => $request->rekening_id ?? null,
-        ]);
+        Pelanggan::create($request->only('nama_pelanggan', 'alamat'));
 
         return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil ditambahkan.');
     }
@@ -36,11 +29,10 @@ class PelangganController extends Controller
         $request->validate([
             'nama_pelanggan' => 'required|string|max:255',
             'alamat' => 'nullable|string',
-            'rekening_id' => 'nullable|exists:rekenings,id',
         ]);
 
         $pelanggan = Pelanggan::findOrFail($id);
-        $pelanggan->update($request->only('nama_pelanggan', 'alamat', 'rekening_id'));
+        $pelanggan->update($request->only('nama_pelanggan', 'alamat'));
 
         return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil diperbarui.');
     }

@@ -43,37 +43,40 @@ class PenjualanController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'barang_id' => 'required|exists:barangs,id',
-        'jumlah' => 'required|integer|min:1',
-        'harga_jual' => 'nullable|numeric|min:0',
-        'pelanggan_id' => 'nullable|exists:pelanggans,id',
-    ]);
+    {
+        $request->validate([
+            'barang_id' => 'required|exists:barangs,id',
+            'jumlah' => 'required|integer|min:1',
+            'harga_jual' => 'nullable|numeric|min:0',
+            'pelanggan_id' => 'nullable|exists:pelanggans,id',
+            'tenggat_pembayaran' => 'nullable|date',
+        ]);
 
-    $barang = Barang::findOrFail($request->barang_id);
+        $barang = Barang::findOrFail($request->barang_id);
 
-    if ($barang->kuantitas < $request->jumlah) {
-        return back()->with('error', 'Stok tidak mencukupi.');
+        if ($barang->kuantitas < $request->jumlah) {
+            return back()->with('error', 'Stok tidak mencukupi.');
+        }
+
+        $hargaSatuan = $request->harga_jual ?? $barang->harga;
+        $totalHarga = $hargaSatuan * $request->jumlah;
+
+        $penjualan = Penjualan::create([
+            'barang_id' => $barang->id,
+            'jumlah' => $request->jumlah,
+            'total_harga' => $totalHarga,
+            'tanggal' => now(),
+            'pelanggan_id' => $request->pelanggan_id ?? null,
+            'tenggat_pembayaran' => $request->tenggat_pembayaran ?? null,
+            'status_pembayaran' => 'belum bayar',
+        ]);
+
+        // Kurangi stok barang
+        $barang->kuantitas -= $request->jumlah;
+        $barang->save();
+
+        return redirect()->route('penjualan.index')->with('success', 'Penjualan berhasil.');
     }
-
-    $hargaSatuan = $request->harga_jual ?? $barang->harga;
-    $totalHarga = $hargaSatuan * $request->jumlah;
-
-    $penjualan = Penjualan::create([
-        'barang_id' => $barang->id,
-        'jumlah' => $request->jumlah,
-        'total_harga' => $totalHarga,
-        'tanggal' => now(),
-        'pelanggan_id' => $request->pelanggan_id ?? null,
-    ]);
-
-    // Kurangi stok barang
-    $barang->kuantitas -= $request->jumlah;
-    $barang->save();
-
-    return redirect()->route('penjualan.index')->with('success', 'Penjualan berhasil.');
-}
 
 public function destroy($id)
 {

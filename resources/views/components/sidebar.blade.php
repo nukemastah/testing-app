@@ -151,13 +151,11 @@
                 <li><a href="{{ route('barang.index') }}" class="@if(request()->routeIs('barang*')) active @endif">🏷️ Barang</a></li>
                 <li><a href="{{ route('pemasok.index') }}" class="@if(request()->routeIs('pemasok*')) active @endif">🏭 Pemasok</a></li>
                 <li><a href="{{ route('pelanggan.index') }}" class="@if(request()->routeIs('pelanggan*')) active @endif">👥 Pelanggan</a></li>
-                <li><a href="{{ route('rekening.index') }}" class="@if(request()->routeIs('rekening*')) active @endif">🏦 Rekening</a></li>
-                <li><a href="{{ route('pengguna.index') }}" class="@if(request()->routeIs('pengguna*')) active @endif">👤 Pengguna</a></li>
             </ul>
         </li>
 
         <!-- Transaksi Dropdown -->
-        <li class="has-submenu @if(request()->routeIs('biaya*') || request()->routeIs('pindah*') || request()->routeIs('pembelian*') || request()->routeIs('penjualan*') || request()->routeIs('pembayaran*')) open @endif">
+        <li class="has-submenu @if(request()->routeIs('biaya*') || request()->routeIs('pindah*') || request()->routeIs('penjualan*') || request()->routeIs('pembayaran*')) open @endif">
             <a href="#" onclick="toggleMenu(this); return false;">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -168,12 +166,9 @@
                 <span class="toggle-icon">▼</span>
             </a>
             <ul class="submenu">
-                <li><a href="{{ route('biaya.index') }}" class="@if(request()->routeIs('biaya*')) active @endif">💰 Biaya</a></li>
-                <li><a href="{{ route('pindahSaldo.index') }}" class="@if(request()->routeIs('pindahSaldo*')) active @endif">💸 Pindah Saldo Rekening</a></li>
-                <li><a href="{{ route('pembelian.index') }}" class="@if(request()->routeIs('pembelian*')) active @endif">📦 Pembelian</a></li>
+                <li><a href="{{ route('pembayaran-pembelian.index') }}" class="@if(request()->routeIs('pembayaran-pembelian*')) active @endif">💰 Pembayaran Pembelian</a></li>
                 <li><a href="{{ route('penjualan.index') }}" class="@if(request()->routeIs('penjualan*')) active @endif">🛒 Penjualan</a></li>
-                <li><a href="{{ route('pembayaranPembelian.index') }}" class="@if(request()->routeIs('pembayaranPembelian*')) active @endif">💳 Pembayaran Pembelian</a></li>
-                <li><a href="{{ route('pembayaranPenjualan.index') }}" class="@if(request()->routeIs('pembayaranPenjualan*')) active @endif">🧾 Pembayaran Penjualan</a></li>
+                <li><a href="{{ route('pembayaran-penjualan.index') }}" class="@if(request()->routeIs('pembayaran-penjualan*')) active @endif">🧾 Pembayaran Penjualan</a></li>
             </ul>
         </li>
 

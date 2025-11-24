@@ -24,9 +24,22 @@ class ProfileController extends Controller
             'email' => 'required|email|max:255|unique:users,email,'.$user->id,
         ]);
 
-        $user->update($request->only('name', 'email'));
+        $data = $request->only('name', 'email');
 
-        return back()->with('status', 'Profil berhasil diperbarui.');
+        // Update attributes explicitly (email_verified_at is not fillable)
+        $user->name = $data['name'];
+        // If the email changed, reset email_verified_at to null
+        if (isset($data['email']) && $data['email'] !== $user->email) {
+            $user->email = $data['email'];
+            $user->email_verified_at = null;
+        } else {
+            $user->email = $data['email'];
+        }
+
+        $user->save();
+
+        // Redirect to profile page to match test expectations
+        return redirect('/profile')->with('status', 'Profil berhasil diperbarui.');
     }
 
     public function destroy(Request $request)
@@ -38,10 +51,21 @@ class ProfileController extends Controller
         ]);
 
         if (!Hash::check($request->password, $user->password)) {
-            return back()->withErrors(['password' => 'Password salah.']);
+            // Use the 'userDeletion' error bag to match tests that expect this bag
+            return back()->withErrors(['password' => 'Password salah.'], 'userDeletion');
         }
 
-        $user->delete();
+        // To avoid issues deleting the currently authenticated model instance,
+        // capture the id first, log out, then delete by query.
+        $userId = $user->id;
+
+        // Log out and invalidate session before removing the DB record
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        \App\Models\User::where('id', $userId)->delete();
+
         return redirect('/')->with('status', 'Akun berhasil dihapus.');
     }
 }

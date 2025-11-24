@@ -12,13 +12,7 @@ class Pelanggan extends Model
         'kode_pelanggan',
         'nama_pelanggan',
         'alamat',
-        'rekening_id',
     ];
-
-    public function rekening()
-    {
-        return $this->belongsTo(Rekening::class, 'rekening_id');
-    }
 
     public function penjualans()
     {

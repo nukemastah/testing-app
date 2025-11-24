@@ -14,6 +14,8 @@ class Penjualan extends Model
         'total_harga',
         'tanggal',
         'pelanggan_id',
+        'tenggat_pembayaran',
+        'status_pembayaran',
     ];
 
     public function barang()
@@ -24,6 +26,11 @@ class Penjualan extends Model
     public function pelanggan()
     {
         return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
+    }
+
+    public function pembayarans()
+    {
+        return $this->hasMany(PembayaranPenjualan::class, 'penjualan_id');
     }
 
     protected $casts = [

@@ -253,6 +253,8 @@
 
                 <input type="number" name="harga_jual" placeholder="Harga Jual (Opsional)" min="0">
 
+                <input type="date" name="tenggat_pembayaran" value="{{ old('tenggat_pembayaran', \Carbon\Carbon::now()->toDateString()) }}" placeholder="Tenggat Pembayaran (Opsional)">
+
                 <button type="submit" class="btn-jual">Jual</button>
             </form>
         </div>
@@ -266,7 +268,9 @@
                         <th>KUANTITAS</th>
                         <th>HARGA</th>
                         <th>PELANGGAN</th>
-                        <th>JUAL BARANG</th>
+                        <th>TENGGAT BAYAR</th>
+                        <th>STATUS PEMBAYARAN</th>
+                        <th>AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -277,6 +281,18 @@
                         <td>{{ $p->jumlah }} pcs</td>
                         <td>Rp {{ number_format($p->total_harga, 0, ',', '.') }}</td>
                         <td>{{ $p->pelanggan ? $p->pelanggan->nama_pelanggan : '-' }}</td>
+                        <td>{{ $p->tenggat_pembayaran ? \Carbon\Carbon::parse($p->tenggat_pembayaran)->format('d M Y') : '-' }}</td>
+                        <td>
+                            @if($p->status_pembayaran === 'lunas')
+                                <span style="background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">✓ LUNAS</span>
+                            @elseif($p->status_pembayaran === 'kurang bayar')
+                                <span style="background: #fff3cd; color: #856404; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">⚠ KURANG BAYAR</span>
+                            @elseif($p->status_pembayaran === 'telat bayar')
+                                <span style="background: #f8d7da; color: #721c24; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">⛔ TELAT BAYAR</span>
+                            @else
+                                <span style="background: #d1ecf1; color: #0c5460; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">○ BELUM BAYAR</span>
+                            @endif
+                        </td>
                         <td>
                             <form method="POST" action="{{ route('penjualan.destroy', $p->id) }}" onsubmit="return confirm('Yakin ingin membatalkan penjualan ini?')" style="display: inline;">
                                 @csrf
@@ -287,7 +303,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="no-data">Belum ada data penjualan.</td>
+                        <td colspan="8" class="no-data">Belum ada data penjualan.</td>
                     </tr>
                     @endforelse
                 </tbody>
