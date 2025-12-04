@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #F5F1E8;
+            background-color: #b4746f;
             font-family: 'Arial', sans-serif;
         }
     </style>
@@ -37,7 +37,7 @@
                     <input id="email" 
                            class="w-full px-4 py-3 bg-gray-800 text-gray-300 rounded-md border-0 focus:outline-none focus:ring-0 focus:bg-gray-700" 
                            type="email" 
-                           name="email" 
+                           name="email"     
                            value="{{ old('email') }}" 
                            required 
                            autofocus />
@@ -48,13 +48,14 @@
 
                 <!-- Send Mail Button -->
                 <div class="text-center">
-                    <button type="submit" 
-                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-8 rounded-md transition duration-200 focus:outline-none focus:ring-0">
-                        sent mail
+                    <button type="submit"                              
+                            class="hover:bg-orange-600 text-black font-medium py-3 px-8 rounded-md transition duration-200 focus:outline-none focus:ring-0"
+                            style="background-color: #FEBA4F;">                         
+                            Send Mail                     
                     </button>
                 </div>
             </form>
-        </div>
+        </div>  
     </div>
 </body>
 </html>

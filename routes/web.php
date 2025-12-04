@@ -64,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/barang/{id}', [BarangController::class, 'update'])->name('barang.update'); 
     Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
     Route::post('/barang/undo', [BarangController::class, 'undo'])->name('barang.undo');
+<<<<<<< HEAD
 
     // Master - Pemasok routes
     Route::resource('pemasok', PemasokController::class);
@@ -74,6 +75,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/master/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
 
     // Transaksi routes
+=======
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/print-all', [DashboardController::class, 'printAll'])->name('dashboard.print-all');
+>>>>>>> 06263bd8713b319c8ddac4f1c47a0c698fb44f26
     Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
     Route::post('/penjualan', [PenjualanController::class, 'store'])->name('penjualan.store');
     Route::delete('/penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');

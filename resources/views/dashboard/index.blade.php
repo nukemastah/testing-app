@@ -44,6 +44,11 @@
             margin-bottom: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border: 1px solid #e0d5cc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .filter-form {
@@ -93,6 +98,33 @@
             box-shadow: 0 6px 20px rgba(180, 116, 111, 0.3);
         }
 
+        .print-all-btn {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .print-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(23, 162, 184, 0.3);
+        }
+
+        .print-all-btn::before {
+            content: '🖨️';
+            font-size: 16px;
+        }
+
         .table-container {
             background: linear-gradient(135deg, #ffffff 0%, #fdfcfa 100%);
             border-radius: 12px;
@@ -110,6 +142,28 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .print-btn {
+            background: linear-gradient(135deg, #28a745, #20903c);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
         }
 
         .data-table {
@@ -262,6 +316,45 @@
             margin-left: 5px;
         }
 
+        /* Print styles */
+        @media print {
+            .sidebar, .logout-btn, .pagination-container, .print-btn, .filter-section, .print-all-btn {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+            
+            .table-container {
+                break-inside: avoid;
+                margin-bottom: 20px;
+                box-shadow: none;
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+            
+            .data-table {
+                font-size: 10px;
+            }
+            
+            .data-table th, .data-table td {
+                padding: 5px;
+                font-size: 10px;
+            }
+            
+            body {
+                background: white;
+            }
+            
+            .table-header {
+                background: #666 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 width: 150px;
@@ -276,9 +369,19 @@
                 font-size: 2rem;
             }
             
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
             .filter-form {
                 flex-direction: column;
                 align-items: flex-start;
+            }
+            
+            .print-all-btn {
+                align-self: center;
+                margin-top: 10px;
             }
             
             .logout-btn {
@@ -307,6 +410,12 @@
                 font-size: 12px;
                 margin: 0 10px;
             }
+
+            .table-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -328,13 +437,16 @@
                 
                 <button type="submit" class="filter-btn">Filter</button>
             </form>
+            
+            <button onclick="printAllPDF()" class="print-all-btn">Print All PDF</button>
         </div>
 
         <div class="table-container">
             <div class="table-header">
-                Data Penjualan
+                <span>Data Penjualan</span>
+                <button onclick="printSingleTable('penjualan')" class="print-btn">Print PDF</button>
             </div>
-            <table class="data-table">
+            <table class="data-table" id="table-penjualan">
                 <thead>
                     <tr>
                         <th>TANGGAL PENJUALAN</th>    
@@ -381,9 +493,10 @@
 
         <div class="table-container">
             <div class="table-header">
-                Data Barang
+                <span>Data Barang</span>
+                <button onclick="printSingleTable('barang')" class="print-btn">Print PDF</button>
             </div>
-            <table class="data-table">
+            <table class="data-table" id="table-barang">
                 <thead>
                     <tr>
                         <th>NO</th>
@@ -432,9 +545,10 @@
 
         <div class="table-container">
             <div class="table-header">
-                Laporan Laba Rugi
+                <span>Laporan Laba Rugi</span>
+                <button onclick="printSingleTable('laporan')" class="print-btn">Print PDF</button>
             </div>
-            <table class="data-table">
+            <table class="data-table" id="table-laporan">
                 <thead>
                     <tr>
                         <th>Tanggal</th>
@@ -460,6 +574,25 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="pagination-container">
+                <div class="pagination">
+                    @if ($laporan->onFirstPage())
+                        <button class="pagination-btn prev disabled" disabled>Previous</button>
+                    @else
+                        <a href="{{ $laporan->previousPageUrl() }}" class="pagination-btn prev">Previous</a>
+                    @endif
+
+                    <div class="pagination-info">
+                        Page {{ $laporan->currentPage() }} of {{ $laporan->lastPage() }}
+                    </div>
+
+                    @if ($laporan->hasMorePages())
+                        <a href="{{ $laporan->nextPageUrl() }}" class="pagination-btn next">Next</a>
+                    @else
+                        <button class="pagination-btn next disabled" disabled>Next</button>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
     
@@ -467,5 +600,36 @@
         @csrf
         <button type="submit" class="logout-btn">LOGOUT</button>
     </form>
+
+    <script>
+        // Fungsi untuk print semua tabel
+        function printAllPDF() {
+            window.print();
+        }
+
+        // Fungsi untuk print tabel individual
+        function printSingleTable(tableType) {
+            // Sembunyikan semua tabel kecuali yang dipilih
+            const allTables = document.querySelectorAll('.table-container');
+            const targetTable = document.getElementById('table-' + tableType).closest('.table-container');
+            
+            // Simpan display asli
+            const originalDisplays = [];
+            allTables.forEach((table, index) => {
+                originalDisplays[index] = table.style.display;
+                if (table !== targetTable) {
+                    table.style.display = 'none';
+                }
+            });
+            
+            // Print
+            window.print();
+            
+            // Kembalikan display asli
+            allTables.forEach((table, index) => {
+                table.style.display = originalDisplays[index];
+            });
+        }
+    </script>
 </body>
 </html>

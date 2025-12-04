@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gudang Bahan Kue</title>
+    <title>Login - MASTER SENTRA BOGA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #f5f1eb;
+            background-color: #b4746f;
             font-family: 'Arial', sans-serif;
         }
     </style>
@@ -25,7 +25,7 @@
         <div class="bg-gray-200 rounded-lg shadow-xl p-8">
             <!-- Header -->
             <div class="text-center mb-8">
-                <h1 class="text-xl font-bold text-gray-800 tracking-wide">GUDANG BAHAN KUE</h1>
+                <h1 class="text-xl font-bold text-gray-800 tracking-wide">MASTER SENTRA BOGA</h1>
             </div>
 
             <form method="POST" action="{{ route('login') }}">
@@ -73,15 +73,18 @@
                 <!-- Login Button -->
                 <div class="mb-4">
                     <button type="submit" 
-                            class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-0">
+                            class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-0"
+                            style="background-color: #FEBA4F;">
                         LOGIN
+                            
                     </button>
                 </div>
 
                 <!-- Register Button -->
                 <div class="mb-4">
                     <a href="{{ route('register') }}" 
-                       class="w-full block text-center bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-md transition duration-200 focus:outline-none">
+                       class="w-full block text-center bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-md transition duration-200 focus:outline-none"
+                       style="background-color: #F96815;">
                         REGISTER
                     </a>
                 </div>
