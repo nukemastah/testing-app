@@ -251,19 +251,19 @@
         <div class="summary-cards">
             <div class="summary-card">
                 <h4>Total Penjualan</h4>
-                <div class="value">Rp 0</div>
+                <div class="value">Rp{{ number_format($total ?? 0, 0, ',', '.') }}</div>
             </div>
             <div class="summary-card">
                 <h4>Jumlah Transaksi</h4>
-                <div class="value">0</div>
+                <div class="value">{{ $count ?? 0 }}</div>
             </div>
             <div class="summary-card">
                 <h4>Rata-rata Penjualan</h4>
-                <div class="value">Rp 0</div>
+                <div class="value">Rp{{ number_format($avg ?? 0, 0, ',', '.') }}</div>
             </div>
             <div class="summary-card">
                 <h4>Barang Terjual</h4>
-                <div class="value">0</div>
+                <div class="value">{{ $itemsSold ?? 0 }}</div>
             </div>
         </div>
 
@@ -295,9 +295,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="5" class="no-data">Belum ada data penjualan</td>
-                    </tr>
+                    @if(!empty($penjualanList) && count($penjualanList) > 0)
+                        @foreach($penjualanList as $p)
+                            <tr>
+                                <td>{{ $p->tanggal instanceof \Carbon\Carbon ? $p->tanggal->format('d M Y') : $p->tanggal }}</td>
+                                <td>{{ $p->id }}</td>
+                                <td>{{ $p->pelanggan ? $p->pelanggan->nama_pelanggan : 'Walk-in' }}</td>
+                                <td>{{ $p->jumlah }}</td>
+                                <td>Rp{{ number_format($p->total_harga, 0, ',', '.') }}</td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="5" class="no-data">Belum ada data penjualan</td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
@@ -309,10 +321,10 @@
         new Chart(ctx1, {
             type: 'line',
             data: {
-                labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+                labels: {!! json_encode($labels ?? []) !!},
                 datasets: [{
                     label: 'Penjualan (Rp)',
-                    data: [0, 0, 0, 0, 0, 0, 0],
+                    data: {!! json_encode($data ?? []) !!},
                     borderColor: '#b4746f',
                     backgroundColor: 'rgba(180, 116, 111, 0.1)',
                     borderWidth: 2,
@@ -373,9 +385,9 @@
         new Chart(ctx2, {
             type: 'doughnut',
             data: {
-                labels: ['Produk A', 'Produk B', 'Produk C', 'Produk D', 'Produk E'],
+                labels: {!! json_encode(isset($topItems) ? $topItems->pluck('nama')->toArray() : []) !!},
                 datasets: [{
-                    data: [0, 0, 0, 0, 0],
+                    data: {!! json_encode(isset($topItems) ? $topItems->pluck('total')->toArray() : []) !!},
                     backgroundColor: [
                         '#b4746f',
                         '#d4a574',

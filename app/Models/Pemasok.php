@@ -26,4 +26,9 @@ class Pemasok extends Model
             }
         });
     }
+
+    public function barangs()
+    {
+        return $this->hasMany(Barang::class, 'pemasok_id');
+    }
 }

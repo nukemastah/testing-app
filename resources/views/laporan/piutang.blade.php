@@ -188,6 +188,21 @@
             </form>
         </div>
 
+        <div class="summary-grid" style="margin-bottom:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;">
+            <div class="summary-box">
+                <label>Total Piutang</label>
+                <div class="value">Rp{{ number_format($totalPiutang ?? 0, 0, ',', '.') }}</div>
+            </div>
+            <div class="summary-box">
+                <label>Total Terbayar</label>
+                <div class="value">Rp{{ number_format($totalPaid ?? 0, 0, ',', '.') }}</div>
+            </div>
+            <div class="summary-box">
+                <label>Total Sisa</label>
+                <div class="value">Rp{{ number_format($totalOutstanding ?? 0, 0, ',', '.') }}</div>
+            </div>
+        </div>
+
         <div class="table-container">
             <div class="table-header">Daftar Piutang</div>
             <table class="data-table">
@@ -202,9 +217,28 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="6" class="no-data">Belum ada data piutang</td>
-                    </tr>
+                    @if(!empty($piutangList) && count($piutangList) > 0)
+                        @foreach($piutangList as $p)
+                            <tr>
+                                <td>{{ $p['tanggal'] instanceof \Carbon\Carbon ? $p['tanggal']->format('d M Y') : $p['tanggal'] }}</td>
+                                <td>{{ $p['pelanggan'] }}</td>
+                                <td>{{ $p['nomor_invoice'] }}</td>
+                                <td>Rp{{ number_format($p['total_harga'], 0, ',', '.') }}</td>
+                                <td>Rp{{ number_format($p['total_bayar'], 0, ',', '.') }}</td>
+                                <td><strong>Rp{{ number_format($p['outstanding'], 0, ',', '.') }}</strong></td>
+                            </tr>
+                        @endforeach
+                        <tr>
+                            <td colspan="3" style="text-align:center; font-weight:700">TOTAL</td>
+                            <td>Rp{{ number_format($totalPiutang ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp{{ number_format($totalPaid ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp{{ number_format($totalOutstanding ?? 0, 0, ',', '.') }}</td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td colspan="6" class="no-data">Belum ada data piutang</td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>

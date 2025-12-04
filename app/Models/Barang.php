@@ -16,4 +16,9 @@ class Barang extends Model
     {
         return $this->belongsTo(Pemasok::class, 'pemasok_id');
     }
+
+    public function pembayaranPembelians()
+    {
+        return $this->hasMany(PembayaranPembelian::class, 'barang_id');
+    }
 }

@@ -202,9 +202,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="6" class="no-data">Belum ada data mutasi stok</td>
-                    </tr>
+                    @if(!empty($mutasiList) && count($mutasiList) > 0)
+                        @foreach($mutasiList as $m)
+                            <tr>
+                                <td>{{ $m['tanggal'] instanceof \Carbon\Carbon ? $m['tanggal']->format('d M Y') : $m['tanggal'] }}</td>
+                                <td>{{ $m['kode'] }}</td>
+                                <td>{{ $m['nama'] }}</td>
+                                <td>{{ $m['masuk'] }}</td>
+                                <td>{{ $m['keluar'] }}</td>
+                                <td><strong>{{ $m['stok_akhir'] }}</strong></td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="6" class="no-data">Belum ada data mutasi stok</td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>

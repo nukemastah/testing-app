@@ -185,7 +185,9 @@
                 <span class="toggle-icon">▼</span>
             </a>
             <ul class="submenu">
-                <li><a href="{{ route('laporan.mutasiRekening') }}" class="@if(request()->routeIs('laporan.mutasiRekening')) active @endif">📊 Mutasi Rekening</a></li>
+                <li><a href="{{ route('laporan.labaRugi') }}" class="@if(request()->routeIs('laporan.labaRugi')) active @endif">📊 Laba Rugi</a></li>
+                <li><a href="{{ route('laporan.generalLedger') }}" class="@if(request()->routeIs('laporan.generalLedger')) active @endif">📋 General Ledger</a></li>
+                <li><a href="{{ route('laporan.hutang') }}" class="@if(request()->routeIs('laporan.hutang')) active @endif">💳 Laporan Hutang</a></li>
                 <li><a href="{{ route('laporan.mutasiStok') }}" class="@if(request()->routeIs('laporan.mutasiStok')) active @endif">📈 Mutasi Stok</a></li>
                 <li><a href="{{ route('laporan.kas') }}" class="@if(request()->routeIs('laporan.kas')) active @endif">💵 Kas</a></li>
                 <li><a href="{{ route('laporan.piutang') }}" class="@if(request()->routeIs('laporan.piutang')) active @endif">📋 Piutang</a></li>

@@ -13,6 +13,10 @@ class PembayaranPenjualan extends Model
         'tanggal_pembayaran',
     ];
 
+    protected $casts = [
+        'tanggal_pembayaran' => 'date',
+    ];
+
     public function penjualan()
     {
         return $this->belongsTo(Penjualan::class, 'penjualan_id');

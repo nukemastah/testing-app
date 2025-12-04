@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Kas - Dashboard Admin</title>
+    <title>Laporan Hutang - Dashboard Admin</title>
     <style>
         * {
             margin: 0;
@@ -173,7 +173,7 @@
     
     <div class="main-container">
         <div class="header">
-            <h1>💵 Laporan Kas</h1>
+            <h1>💳 Laporan Hutang</h1>
         </div>
         
         <div class="filter-section">
@@ -189,31 +189,39 @@
         </div>
 
         <div class="table-container">
-            <div class="table-header">Daftar Transaksi Kas</div>
+            <div class="table-header">Daftar Hutang</div>
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Tanggal</th>
-                        <th>Uraian</th>
-                        <th>Debit</th>
-                        <th>Kredit</th>
-                        <th>Saldo</th>
+                        <th>Pelanggan</th>
+                        <th>Nomor Invoice</th>
+                        <th>Total Hutang</th>
+                        <th>Terbayar</th>
+                        <th>Sisa Hutang</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if(!empty($entries) && count($entries) > 0)
-                        @foreach($entries as $e)
+                    @if(count($hutangList) && count($hutangList) > 0)
+                        @foreach($hutangList as $hutang)
                             <tr>
-                                <td>{{ $e['date'] instanceof \Carbon\Carbon ? $e['date']->format('d M Y') : $e['date'] }}</td>
-                                <td>{{ $e['description'] }}</td>
-                                <td>{{ $e['debit'] > 0 ? 'Rp' . number_format($e['debit'], 0, ',', '.') : '-' }}</td>
-                                <td>{{ $e['credit'] > 0 ? 'Rp' . number_format($e['credit'], 0, ',', '.') : '-' }}</td>
-                                <td><strong>Rp{{ number_format($e['saldo'], 0, ',', '.') }}</strong></td>
+                                <td>{{ $hutang['tanggal'] instanceof \Carbon\Carbon ? $hutang['tanggal']->format('d M Y') : $hutang['tanggal'] }}</td>
+                                <td>{{ $hutang['pelanggan'] }}</td>
+                                <td>{{ $hutang['nomor_invoice'] ?? '-' }}</td>
+                                <td>Rp{{ number_format($hutang['total_harga'], 0, ',', '.') }}</td>
+                                <td>Rp{{ number_format($hutang['total_bayar'], 0, ',', '.') }}</td>
+                                <td><strong>Rp{{ number_format($hutang['outstanding'], 0, ',', '.') }}</strong></td>
                             </tr>
                         @endforeach
+                        <tr>
+                            <td colspan="3" style="text-align: center; font-weight: 700;">TOTAL</td>
+                            <td>Rp{{ number_format($totalHutang, 0, ',', '.') }}</td>
+                            <td>Rp{{ number_format($totalHutang - ($totalBelumBayar + $totalKurangBayar), 0, ',', '.') }}</td>
+                            <td>Rp{{ number_format($totalBelumBayar + $totalKurangBayar, 0, ',', '.') }}</td>
+                        </tr>
                     @else
                         <tr>
-                            <td colspan="5" class="no-data">Belum ada data kas</td>
+                            <td colspan="6" class="no-data">Belum ada data hutang</td>
                         </tr>
                     @endif
                 </tbody>

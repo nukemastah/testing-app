@@ -7,6 +7,13 @@ use App\Http\Controllers\PemasokController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\PembayaranPenjualanController;
 use App\Http\Controllers\PembayaranPembelianController;
+use App\Http\Controllers\LabaRugiController;
+use App\Http\Controllers\GeneralLedgerController;
+use App\Http\Controllers\HutangController;
+use App\Http\Controllers\MutasiStokController;
+use App\Http\Controllers\KasController;
+use App\Http\Controllers\PiutangController;
+use App\Http\Controllers\LaporanPenjualanController;
 use App\Http\Controllers\DashboardController;
 use App\Models\Barang;
 use Illuminate\Support\Facades\Route;
@@ -83,11 +90,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/pembayaran-pembelian/{pembayaranPembelian}', [PembayaranPembelianController::class, 'destroy'])->name('pembayaran-pembelian.destroy');
 
     // Laporan routes
-    Route::get('/laporan/mutasi-rekening', function () { return view('laporan.mutasiRekening'); })->name('laporan.mutasiRekening');
-    Route::get('/laporan/mutasi-stok', function () { return view('laporan.mutasiStok'); })->name('laporan.mutasiStok');
-    Route::get('/laporan/kas', function () { return view('laporan.kas'); })->name('laporan.kas');
-    Route::get('/laporan/piutang', function () { return view('laporan.piutang'); })->name('laporan.piutang');
-    Route::get('/laporan/penjualan', function () { return view('laporan.penjualan'); })->name('laporan.penjualan');
+    Route::get('/laporan/laba-rugi', [LabaRugiController::class, 'index'])->name('laporan.labaRugi');
+    Route::get('/laporan/general-ledger', [GeneralLedgerController::class, 'index'])->name('laporan.generalLedger');
+    Route::get('/laporan/hutang', [HutangController::class, 'index'])->name('laporan.hutang');
+    Route::get('/laporan/mutasi-stok', [MutasiStokController::class, 'index'])->name('laporan.mutasiStok');
+    Route::get('/laporan/kas', [KasController::class, 'index'])->name('laporan.kas');
+    Route::get('/laporan/piutang', [PiutangController::class, 'index'])->name('laporan.piutang');
+    Route::get('/laporan/penjualan', [LaporanPenjualanController::class, 'index'])->name('laporan.penjualan');
 });
 
 require __DIR__.'/auth.php';
