@@ -18,4 +18,9 @@ class Pelanggan extends Model
     {
         return $this->hasMany(Penjualan::class, 'pelanggan_id');
     }
+
+    public function notaHjuals()
+    {
+        return $this->hasMany(NotaHjual::class, 'pelanggan_id');
+    }
 }

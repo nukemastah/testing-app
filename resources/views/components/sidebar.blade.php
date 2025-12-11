@@ -195,22 +195,6 @@
             </ul>
         </li>
 
-        <!-- Logout -->
-        <li style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 20px;">
-            <form method="POST" action="{{ route('logout') }}" class="w-full">
-                @csrf
-                <button type="submit" class="w-full text-left" style="background: none; border: none; padding: 0; cursor: pointer;">
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" style="display: flex; align-items: center; padding: 15px 25px; color: white; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.3s ease; border-left: 4px solid transparent;">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                        <span class="menu-label">Logout</span>
-                    </a>
-                </button>
-            </form>
-        </li>
     </ul>
 
     <script>

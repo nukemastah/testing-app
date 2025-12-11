@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Penjualan;
+use App\Models\NotaHjual;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -12,8 +12,10 @@ class PiutangController extends Controller
         $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date'))->startOfDay() : Carbon::now()->startOfMonth();
         $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date'))->endOfDay() : Carbon::now()->endOfMonth();
 
-        $penjualans = Penjualan::with('pelanggan', 'pembayarans')
+        $notaHjuals = NotaHjual::with('pelanggan', 'pembayarans')
             ->whereBetween('tanggal', [$startDate, $endDate])
+            ->whereIn('status', ['selesai', 'sebagian', 'lunas'])
+            ->orderBy('tanggal', 'desc')
             ->get();
 
         $piutangList = [];
@@ -21,22 +23,27 @@ class PiutangController extends Controller
         $totalPaid = 0;
         $totalOutstanding = 0;
 
-        foreach ($penjualans as $p) {
-            $paid = $p->pembayarans->sum('jumlah_bayar');
-            $outstanding = $p->total_harga - $paid;
+        foreach ($notaHjuals as $nota) {
+            $paid = $nota->pembayarans->sum('jumlah_bayar');
+            $outstanding = $nota->total_harga - $paid;
 
-            $piutangList[] = [
-                'tanggal' => $p->tanggal,
-                'pelanggan' => $p->pelanggan ? $p->pelanggan->nama_pelanggan : 'Walk-in',
-                'nomor_invoice' => $p->id,
-                'total_harga' => $p->total_harga,
-                'total_bayar' => $paid,
-                'outstanding' => $outstanding,
-            ];
+            // Only include if there's outstanding balance
+            if ($outstanding > 0) {
+                $piutangList[] = [
+                    'tanggal' => $nota->tanggal,
+                    'pelanggan' => $nota->pelanggan ? $nota->pelanggan->nama_pelanggan : 'Walk-in',
+                    'no_nota' => $nota->no_nota,
+                    'total_harga' => $nota->total_harga,
+                    'total_bayar' => $paid,
+                    'outstanding' => $outstanding,
+                    'status' => $nota->status,
+                ];
 
-            $totalPiutang += $p->total_harga;
+                $totalOutstanding += $outstanding;
+            }
+
+            $totalPiutang += $nota->total_harga;
             $totalPaid += $paid;
-            $totalOutstanding += $outstanding;
         }
 
         return view('laporan.piutang', compact('piutangList', 'totalPiutang', 'totalPaid', 'totalOutstanding', 'startDate', 'endDate'));

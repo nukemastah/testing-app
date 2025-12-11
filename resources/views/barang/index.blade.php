@@ -426,7 +426,8 @@
                         <th>NO</th>
                         <th>NAMA BARANG</th>
                         <th>KUANTITAS</th>
-                        <th>HARGA</th>
+                        <th>HARGA BELI</th>
+                        <th>HARGA JUAL</th>
                         <th>PEMASOK</th>
                         <th>AKSI</th>
                     </tr>
@@ -438,10 +439,12 @@
                         <td>{{ $barang->nama }}</td>
                         <td>{{ $barang->kuantitas }}</td>
                         <td>Rp {{ number_format($barang->harga, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($barang->harga_jual, 0, ',', '.') }}</td>
                         <td>{{ $barang->pemasok->nama_pemasok ?? '-' }}</td>
                         <td>
                             <div class="action-buttons">
                                 <a href="/barang/{{ $barang->id }}/edit" class="btn-edit">Edit</a>
+                                <a href="/barang/{{ $barang->id }}/add-stock" class="btn-edit" style="background-color: #007bff;">Tambah Stok</a>
                                 <form method="POST" action="/barang/{{ $barang->id }}" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
@@ -488,7 +491,8 @@
                     <thead>
                         <tr>
                             <th>NAMA BARANG</th>
-                            <th>HARGA</th>
+                            <th>HARGA BELI</th>
+                            <th>HARGA JUAL</th>
                             <th>KUANTITAS</th>
                             <th>PEMASOK</th>
                             <th>TAMBAH</th>
@@ -498,6 +502,7 @@
                         <tr>
                             <td><input type="text" name="nama" class="form-input" placeholder="Masukkan nama barang" required></td>
                             <td><input type="number" name="harga" class="form-input" placeholder="0" required min="0"></td>
+                            <td><input type="number" name="harga_jual" class="form-input" placeholder="0" required min="0"></td>
                             <td><input type="number" name="kuantitas" class="form-input" placeholder="0" required min="1"></td>
                             <td>
                                 <select name="pemasok_id" class="form-input" style="padding: 15px 12px; border: none; background: transparent; font-size: 14px; text-align: center; outline: none; width: 100%;">

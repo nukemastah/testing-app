@@ -274,6 +274,20 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="harga_jual" class="form-label">Harga Jual</label>
+                    <input type="number" 
+                           id="harga_jual" 
+                           name="harga_jual" 
+                           class="form-input" 
+                           value="{{ old('harga_jual', $barang->harga_jual) }}" 
+                           placeholder="0" 
+                           required 
+                           min="0">
+                    @error('harga_jual')
+                        <div class="validation-error">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="form-group">
                     <label for="kuantitas" class="form-label">Kuantitas</label>
                     <input type="number" 
                            id="kuantitas" 

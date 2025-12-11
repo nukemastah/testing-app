@@ -188,6 +188,25 @@
             </form>
         </div>
 
+        <div class="summary-grid" style="margin-bottom:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px;">
+            <div class="summary-box" style="background:linear-gradient(135deg,#fff,#f8f6f3);padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <label style="color:#666;font-size:13px;display:block;margin-bottom:8px;">Total Hutang</label>
+                <div class="value" style="font-size:24px;font-weight:bold;color:#333;">Rp{{ number_format($totalHutang ?? 0, 0, ',', '.') }}</div>
+            </div>
+            <div class="summary-box" style="background:linear-gradient(135deg,#fff,#f8f6f3);padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <label style="color:#666;font-size:13px;display:block;margin-bottom:8px;">Lunas</label>
+                <div class="value" style="font-size:24px;font-weight:bold;color:#28a745;">Rp{{ number_format($totalLunas ?? 0, 0, ',', '.') }}</div>
+            </div>
+            <div class="summary-box" style="background:linear-gradient(135deg,#fff,#f8f6f3);padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <label style="color:#666;font-size:13px;display:block;margin-bottom:8px;">Belum Bayar</label>
+                <div class="value" style="font-size:24px;font-weight:bold;color:#dc3545;">Rp{{ number_format($totalBelumBayar ?? 0, 0, ',', '.') }}</div>
+            </div>
+            <div class="summary-box" style="background:linear-gradient(135deg,#fff,#f8f6f3);padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <label style="color:#666;font-size:13px;display:block;margin-bottom:8px;">Kurang Bayar</label>
+                <div class="value" style="font-size:24px;font-weight:bold;color:#ffc107;">Rp{{ number_format($totalKurangBayar ?? 0, 0, ',', '.') }}</div>
+            </div>
+        </div>
+
         <div class="table-container">
             <div class="table-header">Daftar Hutang</div>
             <table class="data-table">
@@ -195,7 +214,8 @@
                     <tr>
                         <th>Tanggal</th>
                         <th>Pelanggan</th>
-                        <th>Nomor Invoice</th>
+                        <th>No. Nota</th>
+                        <th>Status</th>
                         <th>Total Hutang</th>
                         <th>Terbayar</th>
                         <th>Sisa Hutang</th>
@@ -207,21 +227,30 @@
                             <tr>
                                 <td>{{ $hutang['tanggal'] instanceof \Carbon\Carbon ? $hutang['tanggal']->format('d M Y') : $hutang['tanggal'] }}</td>
                                 <td>{{ $hutang['pelanggan'] }}</td>
-                                <td>{{ $hutang['nomor_invoice'] ?? '-' }}</td>
+                                <td>{{ $hutang['no_nota'] ?? '-' }}</td>
+                                <td>
+                                    @if($hutang['status_label'] == 'Lunas')
+                                        <span style="color: #28a745; font-weight: bold;">{{ $hutang['status_label'] }}</span>
+                                    @elseif($hutang['status_label'] == 'Kurang Bayar')
+                                        <span style="color: #ffc107; font-weight: bold;">{{ $hutang['status_label'] }}</span>
+                                    @else
+                                        <span style="color: #dc3545; font-weight: bold;">{{ $hutang['status_label'] }}</span>
+                                    @endif
+                                </td>
                                 <td>Rp{{ number_format($hutang['total_harga'], 0, ',', '.') }}</td>
                                 <td>Rp{{ number_format($hutang['total_bayar'], 0, ',', '.') }}</td>
                                 <td><strong>Rp{{ number_format($hutang['outstanding'], 0, ',', '.') }}</strong></td>
                             </tr>
                         @endforeach
                         <tr>
-                            <td colspan="3" style="text-align: center; font-weight: 700;">TOTAL</td>
+                            <td colspan="4" style="text-align: center; font-weight: 700;">TOTAL</td>
                             <td>Rp{{ number_format($totalHutang, 0, ',', '.') }}</td>
                             <td>Rp{{ number_format($totalHutang - ($totalBelumBayar + $totalKurangBayar), 0, ',', '.') }}</td>
                             <td>Rp{{ number_format($totalBelumBayar + $totalKurangBayar, 0, ',', '.') }}</td>
                         </tr>
                     @else
                         <tr>
-                            <td colspan="6" class="no-data">Belum ada data hutang</td>
+                            <td colspan="7" class="no-data">Belum ada data hutang</td>
                         </tr>
                     @endif
                 </tbody>

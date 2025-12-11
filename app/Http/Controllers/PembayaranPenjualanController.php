@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Penjualan;
+use App\Models\NotaHjual;
 use App\Models\PembayaranPenjualan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -11,30 +11,32 @@ class PembayaranPenjualanController extends Controller
 {
     public function index()
     {
-        $pembayarans = PembayaranPenjualan::with('penjualan.pelanggan')
+        $pembayarans = PembayaranPenjualan::with('notaHjual.pelanggan')
             ->orderBy('tanggal_pembayaran', 'desc')
             ->get();
         
-        $penjualans = Penjualan::with('pelanggan')->get();
+        $notaHjuals = NotaHjual::with('pelanggan')
+            ->where('status', 'selesai')
+            ->get();
         
-        return view('transaksi.pembayaranPenjualan', compact('pembayarans', 'penjualans'));
+        return view('transaksi.pembayaranPenjualan', compact('pembayarans', 'notaHjuals'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'penjualan_id' => 'required|exists:penjualans,id',
+            'no_nota' => 'required|exists:nota_hjuals,no_nota',
             'jumlah_bayar' => 'required|integer|min:1',
             'bukti_bayar' => 'nullable|file|mimes:pdf|max:5120',
             'tanggal_pembayaran' => 'nullable|date',
         ]);
 
-        $penjualan = Penjualan::findOrFail($request->penjualan_id);
+        $notaHjual = NotaHjual::with('pelanggan')->findOrFail($request->no_nota);
 
         // Handle file upload
         if ($request->hasFile('bukti_bayar')) {
             $file = $request->file('bukti_bayar');
-            $filename = time() . '_' . str_replace(' ', '_', $penjualan->pelanggan->nama_pelanggan) . '.pdf';
+            $filename = time() . '_' . str_replace(' ', '_', $notaHjual->pelanggan->nama_pelanggan ?? 'pelanggan') . '.pdf';
             $path = $file->storeAs('bukti_bayar', $filename, 'public');
             $validated['bukti_bayar'] = $path;
         }
@@ -45,18 +47,18 @@ class PembayaranPenjualanController extends Controller
         }
 
         // Create payment record
-        $pembayaran = $penjualan->pembayarans()->create($validated);
+        PembayaranPenjualan::create($validated);
 
-        // Update penjualan payment status
-        $this->updatePaymentStatus($penjualan);
+        // Update payment status
+        $this->updatePaymentStatus($notaHjual);
 
         return redirect()->route('pembayaran-penjualan.index')
-            ->with('success', 'Pembayaran berhasil dicatat!');
+            ->with('success', 'Pembayaran untuk nota ' . $notaHjual->no_nota . ' berhasil dicatat!');
     }
 
     public function destroy(PembayaranPenjualan $pembayaranPenjualan)
     {
-        $penjualan = $pembayaranPenjualan->penjualan;
+        $notaHjual = $pembayaranPenjualan->notaHjual;
         
         // Delete file if exists
         if ($pembayaranPenjualan->bukti_bayar) {
@@ -66,34 +68,49 @@ class PembayaranPenjualanController extends Controller
         $pembayaranPenjualan->delete();
 
         // Recalculate payment status
-        $this->updatePaymentStatus($penjualan);
+        if ($notaHjual) {
+            $this->updatePaymentStatus($notaHjual);
+        }
 
         return redirect()->route('pembayaran-penjualan.index')
             ->with('success', 'Pembayaran berhasil dihapus!');
     }
 
-    private function updatePaymentStatus(Penjualan $penjualan)
+    public function getDetailNota($no_nota)
+    {
+        $notaHjual = NotaHjual::with('pelanggan')->findOrFail($no_nota);
+        
+        // Calculate total paid so far
+        $totalPaid = PembayaranPenjualan::where('no_nota', $no_nota)
+            ->sum('jumlah_bayar');
+        
+        $outstanding = $notaHjual->total_harga - $totalPaid;
+        
+        return response()->json([
+            'pelanggan_nama' => $notaHjual->pelanggan->nama_pelanggan ?? 'Guest',
+            'total_harga' => $notaHjual->total_harga,
+            'total_paid' => $totalPaid,
+            'outstanding' => max(0, $outstanding),
+            'status' => $notaHjual->status,
+        ]);
+    }
+
+    private function updatePaymentStatus(NotaHjual $notaHjual)
     {
         // Calculate total paid
-        $totalPaid = $penjualan->pembayarans()->sum('jumlah_bayar');
-        $totalHarga = $penjualan->total_harga;
+        $totalPaid = PembayaranPenjualan::where('no_nota', $notaHjual->no_nota)
+            ->sum('jumlah_bayar');
+        $totalHarga = $notaHjual->total_harga;
 
-        // Determine status
+        // Determine status based on payment
         if ($totalPaid >= $totalHarga) {
             $status = 'lunas';
         } elseif ($totalPaid > 0) {
-            $status = 'kurang bayar';
+            $status = 'sebagian';
         } else {
-            $status = 'belum bayar';
+            $status = 'selesai'; // No payment yet, but transaction is complete
         }
 
-        // Check if late (only if tenggat_pembayaran is set and payment is not yet complete)
-        if ($penjualan->tenggat_pembayaran && $totalPaid > 0 && $totalPaid < $totalHarga) {
-            if (now()->toDateString() > $penjualan->tenggat_pembayaran) {
-                $status = 'telat bayar';
-            }
-        }
-
-        $penjualan->update(['status_pembayaran' => $status]);
+        $notaHjual->update(['status' => $status]);
     }
 }

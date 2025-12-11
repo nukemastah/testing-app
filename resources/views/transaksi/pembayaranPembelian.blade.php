@@ -223,12 +223,12 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="barang_id">Barang</label>
-                        <select name="barang_id" id="barang_id" required>
-                            <option value="">-- Pilih Barang --</option>
-                            @foreach ($barangs as $barang)
-                                <option value="{{ $barang->id }}">
-                                    {{ $barang->nama }} (Rp{{ number_format($barang->harga, 0, ',', '.') }})
+                        <label for="pembelian_id">Pembelian Barang</label>
+                        <select name="pembelian_id" id="pembelian_id" required onchange="loadDetailPembelian()">
+                            <option value="">-- Pilih Pembelian --</option>
+                            @foreach ($pembelians as $pembelian)
+                                <option value="{{ $pembelian->id }}">
+                                    {{ $pembelian->barang->nama }} - {{ $pembelian->jumlah }} unit (Rp{{ number_format($pembelian->total_harga, 0, ',', '.') }})
                                 </option>
                             @endforeach
                         </select>
@@ -242,6 +242,24 @@
                     <div class="form-group">
                         <label for="tanggal_pembayaran">Tanggal Pembayaran</label>
                         <input type="date" name="tanggal_pembayaran" id="tanggal_pembayaran" value="{{ old('tanggal_pembayaran', \Carbon\Carbon::now()->toDateString()) }}">
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="form-row">
+                    <div class="form-group" style="background: #f9f7f4; padding: 15px; border-radius: 6px;">
+                        <label style="margin-bottom: 0; color: #666; font-size: 12px;">Total Stok</label>
+                        <div id="totalStok" style="font-size: 18px; font-weight: bold; color: #333;">-</div>
+                    </div>
+
+                    <div class="form-group" style="background: #f9f7f4; padding: 15px; border-radius: 6px;">
+                        <label style="margin-bottom: 0; color: #666; font-size: 12px;">Total Harus Dibayar</label>
+                        <div id="totalHarus" style="font-size: 18px; font-weight: bold; color: #333;">-</div>
+                    </div>
+
+                    <div class="form-group" style="background: #f9f7f4; padding: 15px; border-radius: 6px;">
+                        <label style="margin-bottom: 0; color: #666; font-size: 12px;">Sisa Belum Dibayar</label>
+                        <div id="sisaBayar" style="font-size: 18px; font-weight: bold; color: #dc3545;">-</div>
                     </div>
                 </div>
 
@@ -277,7 +295,7 @@
                         @foreach ($pembayarans as $key => $pembayaran)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td><strong>{{ $pembayaran->barang->nama ?? '-' }}</strong></td>
+                                <td><strong>{{ $pembayaran->pembelian->barang->nama ?? '-' }}</strong></td>
                                 <td class="text-right"><strong>Rp{{ number_format($pembayaran->jumlah_bayar, 0, ',', '.') }}</strong></td>
                                 <td>{{ \Carbon\Carbon::parse($pembayaran->tanggal_pembayaran)->format('d M Y') }}</td>
                                 <td>
@@ -305,5 +323,34 @@
             @endif
         </div>
     </div>
+
+    <script>
+        function loadDetailPembelian() {
+            const pembelianId = document.getElementById('pembelian_id').value;
+            
+            if (!pembelianId) {
+                document.getElementById('totalStok').textContent = '-';
+                document.getElementById('totalHarus').textContent = '-';
+                document.getElementById('sisaBayar').textContent = '-';
+                return;
+            }
+
+            fetch(`/pembayaran-pembelian/${pembelianId}/detail`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalStok').textContent = data.jumlah + ' unit';
+                    document.getElementById('totalHarus').textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(data.total_harga);
+                    document.getElementById('sisaBayar').textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(data.outstanding);
+                    
+                    // Set max jumlah_bayar to outstanding amount
+                    document.getElementById('jumlah_bayar').max = data.outstanding;
+                    document.getElementById('jumlah_bayar').placeholder = 'Max: Rp' + new Intl.NumberFormat('id-ID').format(data.outstanding);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal memuat detail pembelian');
+                });
+        }
+    </script>
 </body>
 </html>

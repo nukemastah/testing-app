@@ -5,17 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Penjualan;
 use App\Models\Pelanggan;
+use App\Models\NotaHjual;
+use App\Models\DetailHjual;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PenjualanController extends Controller
 {
+    public function create()
+    {
+        $barangs = Barang::all();
+        $pelanggans = Pelanggan::all();
+        return view('penjualan.create-multi', compact('barangs', 'pelanggans'));
+    }
+
     public function index(Request $request)
     {
         // Ambil filter dari query string
         $filter = $request->query('filter', 'all');
 
-        $query = Penjualan::with(['barang', 'pelanggan']);
+        $query = NotaHjual::with(['pelanggan', 'details.barang']);
 
         switch ($filter) {
             case 'daily':
@@ -35,62 +45,104 @@ class PenjualanController extends Controller
                 break;
         }
 
-        $penjualans = $query->latest()->get();
+        $notaHjuals = $query->latest('tanggal')->get();
         $barangs = Barang::all();
         $pelanggans = Pelanggan::all();
 
-        return view('penjualan.index', compact('penjualans', 'barangs', 'pelanggans'));
+        return view('penjualan.index', compact('notaHjuals', 'barangs', 'pelanggans'));
     }
+
+
 
     public function store(Request $request)
     {
+        // Validate multi-item format
         $request->validate([
-            'barang_id' => 'required|exists:barangs,id',
-            'jumlah' => 'required|integer|min:1',
-            'harga_jual' => 'nullable|numeric|min:0',
-            'pelanggan_id' => 'nullable|exists:pelanggans,id',
+            'items' => 'required|array|min:1',
+            'items.*.barang_id' => 'required|exists:barangs,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.harga_jual' => 'required|numeric|min:0',
+            'pelanggan_id' => 'required|exists:pelanggans,id',
             'tenggat_pembayaran' => 'nullable|date',
         ]);
 
-        $barang = Barang::findOrFail($request->barang_id);
-
-        if ($barang->kuantitas < $request->jumlah) {
-            return back()->with('error', 'Stok tidak mencukupi.');
+        // Validate stock availability for all items
+        foreach ($request->items as $item) {
+            $barang = Barang::findOrFail($item['barang_id']);
+            if ($barang->kuantitas < $item['quantity']) {
+                return back()->withInput()->with('error', "Stok {$barang->nama} tidak mencukupi. Stok tersedia: {$barang->kuantitas}");
+            }
         }
 
-        $hargaSatuan = $request->harga_jual ?? $barang->harga;
-        $totalHarga = $hargaSatuan * $request->jumlah;
+        try {
+            DB::beginTransaction();
 
-        $penjualan = Penjualan::create([
-            'barang_id' => $barang->id,
-            'jumlah' => $request->jumlah,
-            'total_harga' => $totalHarga,
-            'tanggal' => now(),
-            'pelanggan_id' => $request->pelanggan_id ?? null,
-            'tenggat_pembayaran' => $request->tenggat_pembayaran ?? null,
-            'status_pembayaran' => 'belum bayar',
-        ]);
+            // Generate no_nota: NJ-YYYYMMDD-XXXXX
+            $today = now()->format('Ymd');
+            $lastNota = NotaHjual::where('no_nota', 'like', "NJ-{$today}-%")
+                ->orderBy('no_nota', 'desc')
+                ->first();
+            
+            if ($lastNota) {
+                $lastNumber = (int)substr($lastNota->no_nota, -5);
+                $newNumber = $lastNumber + 1;
+            } else {
+                $newNumber = 1;
+            }
+            
+            $noNota = sprintf('NJ-%s-%05d', $today, $newNumber);
 
-        // Kurangi stok barang
-        $barang->kuantitas -= $request->jumlah;
-        $barang->save();
+            // Create nota header
+            $notaHjual = NotaHjual::create([
+                'no_nota' => $noNota,
+                'tanggal' => now(),
+                'pelanggan_id' => $request->pelanggan_id,
+                'total_item' => 0, // Will be updated by trigger
+                'total_harga' => 0, // Will be updated by trigger
+                'status' => 'selesai',
+                'keterangan' => $request->keterangan ?? null,
+            ]);
 
-        return redirect()->route('penjualan.index')->with('success', 'Penjualan berhasil.');
+            // Create detail items (triggers will auto-update totals and reduce stock)
+            foreach ($request->items as $item) {
+                DetailHjual::create([
+                    'no_nota' => $noNota,
+                    'barang_id' => $item['barang_id'],
+                    'quantity' => $item['quantity'],
+                    'harga_jual' => $item['harga_jual'], // Harga tersimpan per transaksi
+                    'subtotal' => $item['quantity'] * $item['harga_jual'],
+                ]);
+            }
+
+            DB::commit();
+
+            // Refresh to get updated totals from triggers
+            $notaHjual->refresh();
+
+            return redirect()->route('penjualan.index')->with('success', "Nota {$noNota} berhasil dibuat dengan {$notaHjual->total_item} item senilai Rp " . number_format($notaHjual->total_harga, 0) . ".");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Gagal menyimpan penjualan: ' . $e->getMessage());
+        }
     }
 
-public function destroy($id)
-{
-    $penjualan = Penjualan::with('barang')->findOrFail($id);
+    public function destroy($noNota)
+    {
+        try {
+            $notaHjual = NotaHjual::with('details')->findOrFail($noNota);
+            
+            // Triggers will automatically restore stock when details are deleted
+            $notaHjual->delete();
 
-    // Cek apakah relasi barang tersedia
-    if ($penjualan->barang) {
-        $barang = $penjualan->barang;
-        $barang->kuantitas += $penjualan->jumlah;
-        $barang->save();
+            return redirect()->route('penjualan.index')->with('success', "Nota {$noNota} berhasil dibatalkan dan stok telah dikembalikan.");
+        } catch (\Exception $e) {
+            return redirect()->route('penjualan.index')->with('error', 'Gagal membatalkan nota: ' . $e->getMessage());
+        }
     }
 
-    $penjualan->delete();
+    public function undo()
+    {
+        return redirect()->route('penjualan.index')->with('error', 'Fitur undo penjualan belum tersedia.');
+    }
+}
 
-    return redirect()->route('penjualan.index')->with('success', 'Penjualan berhasil dibatalkan.');
-}
-}

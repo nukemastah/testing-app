@@ -7,18 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class PembayaranPembelian extends Model
 {
     protected $fillable = [
-        'barang_id',
+        'pembelian_id',
         'jumlah_bayar',
         'bukti_bayar',
         'tanggal_pembayaran',
+        'keterangan',
     ];
 
     protected $casts = [
         'tanggal_pembayaran' => 'date',
     ];
 
-    public function barang()
+    public function pembelian()
     {
-        return $this->belongsTo(Barang::class, 'barang_id');
+        return $this->belongsTo(PembelianBarang::class, 'pembelian_id');
     }
 }

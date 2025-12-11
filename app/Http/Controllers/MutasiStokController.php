@@ -14,17 +14,25 @@ class MutasiStokController extends Controller
         $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date'))->endOfDay() : Carbon::now()->endOfMonth();
 
         // Since purchases aren't modeled, we show outgoing (sales) and current stock.
-        $sales = Penjualan::with('barang')
+        // Use withTrashed() to include deleted barang in historical reports
+        $sales = Penjualan::with(['barang' => function($query) {
+                $query->withTrashed();
+            }])
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->get();
 
         $mutasi = [];
 
         foreach ($sales as $s) {
+            $barangNama = $s->barang ? $s->barang->nama : 'Barang Dihapus';
+            if ($s->barang && $s->barang->trashed()) {
+                $barangNama .= ' (Dihapus)';
+            }
+            
             $mutasi[] = [
                 'tanggal' => $s->tanggal,
                 'kode' => $s->barang ? $s->barang->id : '-',
-                'nama' => $s->barang ? $s->barang->nama : 'Unknown',
+                'nama' => $barangNama,
                 'masuk' => 0,
                 'keluar' => $s->jumlah,
                 'stok_akhir' => $s->barang ? $s->barang->kuantitas : 0,

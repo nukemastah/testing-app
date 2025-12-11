@@ -127,6 +127,36 @@
             font-size: 14px;
         }
 
+        .nota-row {
+            background: #f8f6f3;
+            font-weight: bold;
+        }
+
+        .detail-items {
+            background: #fefefe;
+        }
+
+        .detail-table {
+            width: 100%;
+            margin: 10px 0;
+            border-collapse: collapse;
+        }
+
+        .detail-table th {
+            background: #e8e2dd;
+            padding: 8px;
+            font-size: 12px;
+            text-align: left;
+            border: 1px solid #d0c7bf;
+        }
+
+        .detail-table td {
+            padding: 8px;
+            font-size: 13px;
+            border: 1px solid #d0c7bf;
+            text-align: left;
+        }
+
         .data-table tbody tr:nth-child(even) {
             background-color: #f9f7f4;
         }
@@ -232,31 +262,10 @@
                 </select>
             </form>
 
-            <!-- Form Input Penjualan -->
-            <form method="POST" action="/penjualan" class="add-form">
-                @csrf
-                <select name="barang_id" required>
-                    <option value="">Pilih Barang</option>
-                    @foreach($barangs as $barang)
-                        <option value="{{ $barang->id }}">{{ $barang->nama }} (Stok: {{ $barang->kuantitas }})</option>
-                    @endforeach
-                </select>
-                
-                <select name="pelanggan_id">
-                    <option value="">Pilih Pelanggan (opsional)</option>
-                    @foreach($pelanggans as $pelanggan)
-                        <option value="{{ $pelanggan->id }}">{{ $pelanggan->kode_pelanggan ?? ('P-' . $pelanggan->id) }} - {{ $pelanggan->nama_pelanggan }}</option>
-                    @endforeach
-                </select>
-
-                <input type="number" name="jumlah" placeholder="Jumlah" required min="1">
-
-                <input type="number" name="harga_jual" placeholder="Harga Jual (Opsional)" min="0">
-
-                <input type="date" name="tenggat_pembayaran" value="{{ old('tenggat_pembayaran', \Carbon\Carbon::now()->toDateString()) }}" placeholder="Tenggat Pembayaran (Opsional)">
-
-                <button type="submit" class="btn-jual">Jual</button>
-            </form>
+            <!-- CTA to Multi-Item Form -->
+            <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <a href="{{ route('penjualan.create') }}" class="btn-jual" style="text-decoration: none; text-align: center;">Tambah Penjualan</a>
+            </div>
         </div>
 
         <div class="table-container">
@@ -264,41 +273,72 @@
                 <thead>
                     <tr>
                         <th>NO</th>
-                        <th>NAMA BARANG</th>
-                        <th>KUANTITAS</th>
-                        <th>HARGA</th>
+                        <th>NO NOTA</th>
+                        <th>TANGGAL</th>
                         <th>PELANGGAN</th>
-                        <th>TENGGAT BAYAR</th>
-                        <th>STATUS PEMBAYARAN</th>
+                        <th>TOTAL ITEM</th>
+                        <th>TOTAL HARGA</th>
+                        <th>STATUS</th>
                         <th>AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($penjualans as $key => $p)
-                    <tr>
-                        <td>{{ sprintf('%02d', $key + 1) }}</td>
-                        <td>{{ $p->barang ? $p->barang->nama : 'Barang tidak tersedia' }}</td>
-                        <td>{{ $p->jumlah }} pcs</td>
-                        <td>Rp {{ number_format($p->total_harga, 0, ',', '.') }}</td>
-                        <td>{{ $p->pelanggan ? $p->pelanggan->nama_pelanggan : '-' }}</td>
-                        <td>{{ $p->tenggat_pembayaran ? \Carbon\Carbon::parse($p->tenggat_pembayaran)->format('d M Y') : '-' }}</td>
+                    @forelse($notaHjuals as $key => $nota)
+                    <!-- Nota Header Row -->
+                    <tr class="nota-row">
+                        <td rowspan="2">{{ sprintf('%02d', $key + 1) }}</td>
+                        <td>{{ $nota->no_nota }}</td>
+                        <td>{{ \Carbon\Carbon::parse($nota->tanggal)->format('d M Y H:i') }}</td>
+                        <td>{{ $nota->pelanggan ? $nota->pelanggan->nama_pelanggan : '-' }}</td>
+                        <td>{{ $nota->total_item }}</td>
+                        <td>Rp {{ number_format($nota->total_harga, 0, ',', '.') }}</td>
                         <td>
-                            @if($p->status_pembayaran === 'lunas')
-                                <span style="background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">✓ LUNAS</span>
-                            @elseif($p->status_pembayaran === 'kurang bayar')
-                                <span style="background: #fff3cd; color: #856404; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">⚠ KURANG BAYAR</span>
-                            @elseif($p->status_pembayaran === 'telat bayar')
-                                <span style="background: #f8d7da; color: #721c24; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">⛔ TELAT BAYAR</span>
+                            @if($nota->status === 'selesai')
+                                <span style="background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">✓ SELESAI</span>
+                            @elseif($nota->status === 'draft')
+                                <span style="background: #fff3cd; color: #856404; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">📝 DRAFT</span>
                             @else
-                                <span style="background: #d1ecf1; color: #0c5460; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">○ BELUM BAYAR</span>
+                                <span style="background: #f8d7da; color: #721c24; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 12px;">⛔ BATAL</span>
                             @endif
                         </td>
-                        <td>
-                            <form method="POST" action="{{ route('penjualan.destroy', $p->id) }}" onsubmit="return confirm('Yakin ingin membatalkan penjualan ini?')" style="display: inline;">
+                        <td rowspan="2">
+                            <form method="POST" action="{{ route('penjualan.destroy', $nota->no_nota) }}" onsubmit="return confirm('Yakin ingin membatalkan nota {{ $nota->no_nota }}? Stok akan dikembalikan.')" style="display: inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-jual-table">CANCEL</button>
+                                <button type="submit" class="btn-jual-table" style="background: linear-gradient(135deg,rgb(255, 3, 3),rgb(243, 55, 55)); color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">BATAL</button>
                             </form>
+                        </td>
+                    </tr>
+                    <!-- Detail Items Row -->
+                    <tr class="detail-items">
+                        <td colspan="6" style="padding: 10px;">
+                            <table class="detail-table">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="40%">Barang</th>
+                                        <th width="15%">Harga Jual</th>
+                                        <th width="10%">Qty</th>
+                                        <th width="20%">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($nota->details as $idx => $detail)
+                                    <tr>
+                                        <td>{{ $idx + 1 }}</td>
+                                        <td>{{ $detail->barang ? $detail->barang->nama : 'Barang tidak tersedia' }}</td>
+                                        <td>Rp {{ number_format($detail->harga_jual, 0, ',', '.') }}</td>
+                                        <td>{{ $detail->quantity }}</td>
+                                        <td>Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @if($nota->keterangan)
+                            <div style="margin-top: 10px; padding: 8px; background: #f9f7f4; border-left: 3px solid #28a745; font-size: 13px;">
+                                <strong>Keterangan:</strong> {{ $nota->keterangan }}
+                            </div>
+                            @endif
                         </td>
                     </tr>
                     @empty

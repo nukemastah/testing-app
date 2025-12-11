@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PembayaranPenjualan extends Model
 {
     protected $fillable = [
-        'penjualan_id',
+        'no_nota',
         'jumlah_bayar',
         'bukti_bayar',
         'tanggal_pembayaran',
@@ -17,8 +17,14 @@ class PembayaranPenjualan extends Model
         'tanggal_pembayaran' => 'date',
     ];
 
+    public function notaHjual()
+    {
+        return $this->belongsTo(NotaHjual::class, 'no_nota', 'no_nota');
+    }
+    
+    // Backward compatibility alias
     public function penjualan()
     {
-        return $this->belongsTo(Penjualan::class, 'penjualan_id');
+        return $this->notaHjual();
     }
 }

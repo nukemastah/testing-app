@@ -210,7 +210,8 @@
                     <tr>
                         <th>Tanggal</th>
                         <th>Pelanggan</th>
-                        <th>Nomor Invoice</th>
+                        <th>No. Nota</th>
+                        <th>Status</th>
                         <th>Total Piutang</th>
                         <th>Terbayar</th>
                         <th>Sisa Piutang</th>
@@ -222,21 +223,30 @@
                             <tr>
                                 <td>{{ $p['tanggal'] instanceof \Carbon\Carbon ? $p['tanggal']->format('d M Y') : $p['tanggal'] }}</td>
                                 <td>{{ $p['pelanggan'] }}</td>
-                                <td>{{ $p['nomor_invoice'] }}</td>
+                                <td>{{ $p['no_nota'] }}</td>
+                                <td>
+                                    @if($p['status'] == 'lunas')
+                                        <span style="color: #28a745; font-weight: bold;">Lunas</span>
+                                    @elseif($p['status'] == 'sebagian')
+                                        <span style="color: #ffc107; font-weight: bold;">Sebagian</span>
+                                    @else
+                                        <span style="color: #dc3545; font-weight: bold;">Belum Bayar</span>
+                                    @endif
+                                </td>
                                 <td>Rp{{ number_format($p['total_harga'], 0, ',', '.') }}</td>
                                 <td>Rp{{ number_format($p['total_bayar'], 0, ',', '.') }}</td>
                                 <td><strong>Rp{{ number_format($p['outstanding'], 0, ',', '.') }}</strong></td>
                             </tr>
                         @endforeach
                         <tr>
-                            <td colspan="3" style="text-align:center; font-weight:700">TOTAL</td>
+                            <td colspan="4" style="text-align:center; font-weight:700">TOTAL</td>
                             <td>Rp{{ number_format($totalPiutang ?? 0, 0, ',', '.') }}</td>
                             <td>Rp{{ number_format($totalPaid ?? 0, 0, ',', '.') }}</td>
                             <td>Rp{{ number_format($totalOutstanding ?? 0, 0, ',', '.') }}</td>
                         </tr>
                     @else
                         <tr>
-                            <td colspan="6" class="no-data">Belum ada data piutang</td>
+                            <td colspan="7" class="no-data">Belum ada data piutang</td>
                         </tr>
                     @endif
                 </tbody>

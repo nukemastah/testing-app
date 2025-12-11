@@ -276,12 +276,12 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="penjualan_id">Nomor Transaksi Penjualan</label>
-                        <select name="penjualan_id" id="penjualan_id" required>
-                            <option value="">-- Pilih Transaksi --</option>
-                            @foreach ($penjualans as $penjualan)
-                                <option value="{{ $penjualan->id }}">
-                                    #{{ str_pad($penjualan->id, 5, '0', STR_PAD_LEFT) }} - {{ $penjualan->pelanggan->nama_pelanggan }} (Rp{{ number_format($penjualan->total_harga, 0, ',', '.') }})
+                        <label for="no_nota">Nomor Nota Penjualan</label>
+                        <select name="no_nota" id="no_nota" required onchange="loadDetailNota()">
+                            <option value="">-- Pilih Nota --</option>
+                            @foreach ($notaHjuals as $nota)
+                                <option value="{{ $nota->no_nota }}">
+                                    {{ $nota->no_nota }} - {{ $nota->pelanggan->nama_pelanggan ?? 'Guest' }} (Rp{{ number_format($nota->total_harga, 0, ',', '.') }})
                                 </option>
                             @endforeach
                         </select>
@@ -295,6 +295,21 @@
                     <div class="form-group">
                         <label for="tanggal_pembayaran">Tanggal Pembayaran</label>
                         <input type="date" name="tanggal_pembayaran" id="tanggal_pembayaran" value="{{ old('tanggal_pembayaran', \Carbon\Carbon::now()->toDateString()) }}">
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <div class="summary-item">
+                        <label>Total Harga Nota</label>
+                        <div class="value" id="totalHarga">-</div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Total Sudah Dibayar</label>
+                        <div class="value" id="totalDibayar">-</div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Sisa Belum Dibayar</label>
+                        <div class="value" id="sisaBayar" style="color: #dc3545;">-</div>
                     </div>
                 </div>
 
@@ -319,7 +334,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Nomor Transaksi</th>
+                            <th>No Nota</th>
                             <th>Pelanggan</th>
                             <th>Jumlah Bayar</th>
                             <th>Tanggal Pembayaran</th>
@@ -331,8 +346,8 @@
                         @foreach ($pembayarans as $key => $pembayaran)
                             <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td><strong>#{{ str_pad($pembayaran->penjualan->id, 5, '0', STR_PAD_LEFT) }}</strong></td>
-                                <td>{{ $pembayaran->penjualan->pelanggan->nama_pelanggan }}</td>
+                                <td><strong>{{ $pembayaran->no_nota }}</strong></td>
+                                <td>{{ $pembayaran->notaHjual->pelanggan->nama_pelanggan ?? '-' }}</td>
                                 <td class="text-right"><strong>Rp{{ number_format($pembayaran->jumlah_bayar, 0, ',', '.') }}</strong></td>
                                 <td>{{ \Carbon\Carbon::parse($pembayaran->tanggal_pembayaran)->format('d M Y') }}</td>
                                 <td>
@@ -360,5 +375,34 @@
             @endif
         </div>
     </div>
+
+    <script>
+        function loadDetailNota() {
+            const noNota = document.getElementById('no_nota').value;
+            
+            if (!noNota) {
+                document.getElementById('totalHarga').textContent = '-';
+                document.getElementById('totalDibayar').textContent = '-';
+                document.getElementById('sisaBayar').textContent = '-';
+                return;
+            }
+
+            fetch(`/pembayaran-penjualan/${noNota}/detail`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalHarga').textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(data.total_harga);
+                    document.getElementById('totalDibayar').textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(data.total_paid);
+                    document.getElementById('sisaBayar').textContent = 'Rp' + new Intl.NumberFormat('id-ID').format(data.outstanding);
+                    
+                    // Set max jumlah_bayar to outstanding amount
+                    document.getElementById('jumlah_bayar').max = data.outstanding;
+                    document.getElementById('jumlah_bayar').placeholder = 'Max: Rp' + new Intl.NumberFormat('id-ID').format(data.outstanding);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal memuat detail nota');
+                });
+        }
+    </script>
 </body>
 </html>

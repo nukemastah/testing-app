@@ -64,7 +64,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/barang/{id}', [BarangController::class, 'update'])->name('barang.update'); 
     Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
     Route::post('/barang/undo', [BarangController::class, 'undo'])->name('barang.undo');
-<<<<<<< HEAD
+    Route::get('/barang/{id}/add-stock', [BarangController::class, 'showAddStock'])->name('barang.showAddStock');
+    Route::post('/barang/{id}/add-stock', [BarangController::class, 'addStock'])->name('barang.addStock');
 
     // Master - Pemasok routes
     Route::resource('pemasok', PemasokController::class);
@@ -74,25 +75,28 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('pelanggan', PelangganController::class)->only(['index','store','update','destroy']);
     Route::get('/master/pelanggan', [PelangganController::class, 'index'])->name('pelanggan.index');
 
-    // Transaksi routes
-=======
+    // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/print-all', [DashboardController::class, 'printAll'])->name('dashboard.print-all');
->>>>>>> 06263bd8713b319c8ddac4f1c47a0c698fb44f26
+
+    // Transaksi routes
     Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
+    Route::get('/penjualan/create', [PenjualanController::class, 'create'])->name('penjualan.create');
     Route::post('/penjualan', [PenjualanController::class, 'store'])->name('penjualan.store');
-    Route::delete('/penjualan/{id}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
+    Route::delete('/penjualan/{noNota}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
     Route::post('/penjualan/undo', [PenjualanController::class, 'undo'])->name('penjualan.undo');
 
     // Transaksi - Pembayaran Penjualan routes
     Route::get('/transaksi/pembayaran-penjualan', [PembayaranPenjualanController::class, 'index'])->name('pembayaran-penjualan.index');
     Route::post('/pembayaran-penjualan', [PembayaranPenjualanController::class, 'store'])->name('pembayaran-penjualan.store');
     Route::delete('/pembayaran-penjualan/{pembayaranPenjualan}', [PembayaranPenjualanController::class, 'destroy'])->name('pembayaran-penjualan.destroy');
+    Route::get('/pembayaran-penjualan/{no_nota}/detail', [PembayaranPenjualanController::class, 'getDetailNota'])->name('pembayaran-penjualan.detail');
 
     // Transaksi - Pembayaran Pembelian routes
     Route::get('/transaksi/pembayaran-pembelian', [PembayaranPembelianController::class, 'index'])->name('pembayaran-pembelian.index');
     Route::post('/pembayaran-pembelian', [PembayaranPembelianController::class, 'store'])->name('pembayaran-pembelian.store');
     Route::delete('/pembayaran-pembelian/{pembayaranPembelian}', [PembayaranPembelianController::class, 'destroy'])->name('pembayaran-pembelian.destroy');
+    Route::get('/pembayaran-pembelian/{id}/detail', [PembayaranPembelianController::class, 'getDetailPembelian'])->name('pembayaran-pembelian.detail');
 
     // Laporan routes
     Route::get('/laporan/laba-rugi', [LabaRugiController::class, 'index'])->name('laporan.labaRugi');

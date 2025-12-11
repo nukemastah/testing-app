@@ -17,6 +17,9 @@
                         <input type="number" name="harga" placeholder="Harga Barang" class="border p-2 rounded" required>
                         <input type="number" name="kuantitas" placeholder="Kuantitas" class="border p-2 rounded" required>
                     </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <input type="number" name="harga_jual" placeholder="Harga Jual" class="border p-2 rounded" required>
+                    </div>
                     <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         Tambah Barang
                     </button>
@@ -29,6 +32,7 @@
                             <th class="px-4 py-2">#</th>
                             <th class="px-4 py-2">Nama</th>
                             <th class="px-4 py-2">Harga</th>
+                            <th class="px-4 py-2">Harga Jual</th>
                             <th class="px-4 py-2">Kuantitas</th>
                             <th class="px-4 py-2">Aksi</th>
                         </tr>
@@ -38,10 +42,12 @@
                             <tr>
                                 <td class="border px-4 py-2">{{ $i + 1 }}</td>
                                 <td class="border px-4 py-2">{{ $barang->nama }}</td>
-                                <td class="border px-4 py-2">{{ $barang->harga }}</td>
+                                <td class="border px-4 py-2">Rp {{ number_format($barang->harga, 0, ',', '.') }}</td>
+                                <td class="border px-4 py-2">Rp {{ number_format($barang->harga_jual, 0, ',', '.') }}</td>
                                 <td class="border px-4 py-2">{{ $barang->kuantitas }}</td>
                                 <td class="border px-4 py-2">
-                                    <form method="POST" action="/barang/{{ $barang->id }}">
+                                    <a href="/barang/{{ $barang->id }}/edit" class="text-blue-500 hover:underline">Edit</a>
+                                    <form method="POST" action="/barang/{{ $barang->id }}" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-500 hover:underline">Hapus</button>
@@ -49,7 +55,7 @@
                                 </td>
                             </tr>
                         @endforeach
-                </tbody>
+                    </tbody>
                 </table>
 
 

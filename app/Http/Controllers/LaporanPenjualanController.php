@@ -14,7 +14,10 @@ class LaporanPenjualanController extends Controller
         $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date'))->startOfDay() : Carbon::now()->startOfMonth();
         $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date'))->endOfDay() : Carbon::now()->endOfMonth();
 
-        $penjualans = Penjualan::with('barang', 'pelanggan')
+        // Use withTrashed() to include deleted barang in historical reports
+        $penjualans = Penjualan::with(['barang' => function($query) {
+                $query->withTrashed();
+            }, 'pelanggan'])
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->get();
 
@@ -31,9 +34,13 @@ class LaporanPenjualanController extends Controller
             ->limit(5)
             ->get()
             ->map(function ($r) {
-                $barang = Barang::find($r->barang_id);
+                $barang = Barang::withTrashed()->find($r->barang_id);
+                $nama = $barang ? $barang->nama : 'Barang Dihapus';
+                if ($barang && $barang->trashed()) {
+                    $nama .= ' (Dihapus)';
+                }
                 return [
-                    'nama' => $barang ? $barang->nama : 'Unknown',
+                    'nama' => $nama,
                     'total' => $r->total_sold,
                 ];
             });
@@ -48,8 +55,10 @@ class LaporanPenjualanController extends Controller
         $labels = $daily->pluck('date')->map(function ($d) { return Carbon::parse($d)->format('d M'); })->toArray();
         $data = $daily->pluck('total')->toArray();
 
-        // Get all penjualan for table
-        $penjualanList = Penjualan::with('barang', 'pelanggan')
+        // Get all penjualan for table with soft-deleted barang
+        $penjualanList = Penjualan::with(['barang' => function($query) {
+                $query->withTrashed();
+            }, 'pelanggan'])
             ->whereBetween('tanggal', [$startDate, $endDate])
             ->orderBy('tanggal', 'desc')
             ->get();

@@ -15,36 +15,53 @@ class KasController extends Controller
 
         $entries = [];
 
-        $incomes = PembayaranPenjualan::with('penjualan.pelanggan')
-            ->whereBetween('created_at', [$startDate, $endDate])
+        // Pembayaran Penjualan (Income - Debit)
+        $incomes = PembayaranPenjualan::with('notaHjual.pelanggan')
+            ->whereBetween('tanggal_pembayaran', [$startDate, $endDate])
             ->get();
 
         foreach ($incomes as $inc) {
+            $pelangganNama = $inc->notaHjual && $inc->notaHjual->pelanggan 
+                ? $inc->notaHjual->pelanggan->nama_pelanggan 
+                : 'Pelanggan';
+            
             $entries[] = [
-                'date' => $inc->created_at->toDateString(),
-                'description' => 'Pembayaran Penjualan #' . ($inc->penjualan ? $inc->penjualan->id : '-'),
+                'date' => $inc->tanggal_pembayaran,
+                'description' => 'Pembayaran Penjualan ' . $inc->no_nota . ' - ' . $pelangganNama,
                 'debit' => $inc->jumlah_bayar,
                 'credit' => 0,
             ];
         }
 
-        $expenses = PembayaranPembelian::with('barang')
-            ->whereBetween('created_at', [$startDate, $endDate])
+        // Pembayaran Pembelian (Expense - Kredit)
+        $expenses = PembayaranPembelian::with('pembelian.barang', 'pembelian.pemasok')
+            ->whereBetween('tanggal_pembayaran', [$startDate, $endDate])
             ->get();
 
         foreach ($expenses as $exp) {
+            $barangNama = $exp->pembelian && $exp->pembelian->barang 
+                ? $exp->pembelian->barang->nama 
+                : 'Barang';
+            $pemasokNama = $exp->pembelian && $exp->pembelian->pemasok 
+                ? ' dari ' . $exp->pembelian->pemasok->nama_pemasok 
+                : '';
+            
             $entries[] = [
-                'date' => $exp->created_at->toDateString(),
-                'description' => 'Pembelian ' . ($exp->barang ? $exp->barang->nama : '-'),
+                'date' => $exp->tanggal_pembayaran,
+                'description' => 'Pembayaran Pembelian ' . $barangNama . $pemasokNama,
                 'debit' => 0,
                 'credit' => $exp->jumlah_bayar,
             ];
         }
 
+        // Sort by date
         usort($entries, function ($a, $b) {
-            return strtotime($a['date']) - strtotime($b['date']);
+            $dateA = $a['date'] instanceof Carbon ? $a['date']->timestamp : strtotime($a['date']);
+            $dateB = $b['date'] instanceof Carbon ? $b['date']->timestamp : strtotime($b['date']);
+            return $dateA - $dateB;
         });
 
+        // Calculate running balance
         $running = 0;
         foreach ($entries as &$e) {
             $running += ($e['debit'] - $e['credit']);
