@@ -15,8 +15,10 @@ class PembayaranPenjualanController extends Controller
             ->orderBy('tanggal_pembayaran', 'desc')
             ->get();
         
-        $notaHjuals = NotaHjual::with('pelanggan')
-            ->where('status', 'selesai')
+        // Ambil nota yang belum lunas (status 'selesai' atau 'sebagian', tapi tidak 'lunas')
+        $notaHjuals = NotaHjual::with('pelanggan', 'details')
+            ->whereIn('status', ['selesai', 'sebagian'])
+            ->orderBy('tanggal', 'desc')
             ->get();
         
         return view('transaksi.pembayaranPenjualan', compact('pembayarans', 'notaHjuals'));

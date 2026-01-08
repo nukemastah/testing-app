@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\NotaHjual;
+use App\Models\PembelianBarang;
+use App\Models\PembayaranPembelian;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -13,47 +14,46 @@ class HutangController extends Controller
         $startDate = $request->input('start_date') ? Carbon::parse($request->input('start_date'))->startOfDay() : Carbon::now()->startOfMonth();
         $endDate = $request->input('end_date') ? Carbon::parse($request->input('end_date'))->endOfDay() : Carbon::now()->endOfMonth();
 
-        // Get all nota penjualan with payment status
-        $notaHjuals = NotaHjual::with('pelanggan', 'pembayarans')
-            ->whereBetween('tanggal', [$startDate, $endDate])
-            ->whereIn('status', ['selesai', 'sebagian', 'lunas'])
-            ->orderBy('tanggal', 'desc')
+        // Get all pembelian with payment status (Hutang = Pembelian yang belum dibayar)
+        $pembelians = PembelianBarang::with('pemasok', 'barang', 'pembayarans')
+            ->whereBetween('tanggal_pembelian', [$startDate, $endDate])
+            ->orderBy('tanggal_pembelian', 'desc')
             ->get();
 
-        // Calculate outstanding debt for each
+        // Calculate outstanding hutang for each pembelian
         $hutangList = [];
         $totalHutang = 0;
         $totalLunas = 0;
         $totalBelumBayar = 0;
         $totalKurangBayar = 0;
 
-        foreach ($notaHjuals as $nota) {
-            $totalPaid = $nota->pembayarans->sum('jumlah_bayar');
-            $outstanding = $nota->total_harga - $totalPaid;
+        foreach ($pembelians as $pembelian) {
+            $totalPaid = $pembelian->pembayarans->sum('jumlah_bayar');
+            $outstanding = $pembelian->total_harga - $totalPaid;
 
-            $statusLabel = 'Lunas';
-            if ($outstanding >= $nota->total_harga) {
-                $statusLabel = 'Belum Bayar';
+            $statusLabel = $pembelian->status_pembayaran;
+            if ($pembelian->status_pembayaran == 'lunas') {
+                $totalLunas += $pembelian->total_harga;
+            } elseif ($pembelian->status_pembayaran == 'belum bayar') {
                 $totalBelumBayar += $outstanding;
-            } elseif ($outstanding > 0) {
-                $statusLabel = 'Kurang Bayar';
+            } else { // sebagian
                 $totalKurangBayar += $outstanding;
-            } else {
-                $totalLunas += $nota->total_harga;
             }
 
             $hutangList[] = [
-                'no_nota' => $nota->no_nota,
-                'tanggal' => $nota->tanggal,
-                'pelanggan' => $nota->pelanggan->nama_pelanggan ?? 'Walk-in',
-                'total_harga' => $nota->total_harga,
+                'id' => $pembelian->id,
+                'tanggal' => $pembelian->tanggal_pembelian,
+                'pemasok' => $pembelian->pemasok->nama_pemasok ?? '-',
+                'barang' => $pembelian->barang->nama ?? '-',
+                'jumlah' => $pembelian->jumlah,
+                'total_harga' => $pembelian->total_harga,
                 'total_bayar' => $totalPaid,
                 'outstanding' => max(0, $outstanding),
-                'status_label' => $statusLabel,
-                'status' => $nota->status,
+                'status_label' => ucfirst($statusLabel),
+                'status' => $pembelian->status_pembayaran,
             ];
 
-            $totalHutang += $nota->total_harga;
+            $totalHutang += $pembelian->total_harga;
         }
 
         return view('laporan.hutang', compact(

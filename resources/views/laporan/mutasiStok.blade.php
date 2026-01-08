@@ -199,6 +199,7 @@
                         <th>Masuk</th>
                         <th>Keluar</th>
                         <th>Stok Akhir</th>
+                        <th>Keterangan</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -211,11 +212,12 @@
                                 <td>{{ $m['masuk'] }}</td>
                                 <td>{{ $m['keluar'] }}</td>
                                 <td><strong>{{ $m['stok_akhir'] }}</strong></td>
+                                <td>{{ $m['keterangan'] ?? '-' }}</td>
                             </tr>
                         @endforeach
                     @else
                         <tr>
-                            <td colspan="6" class="no-data">Belum ada data mutasi stok</td>
+                            <td colspan="7" class="no-data">Belum ada data mutasi stok</td>
                         </tr>
                     @endif
                 </tbody>

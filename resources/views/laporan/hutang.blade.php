@@ -208,13 +208,14 @@
         </div>
 
         <div class="table-container">
-            <div class="table-header">Daftar Hutang</div>
+            <div class="table-header">Daftar Hutang Pembelian</div>
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Tanggal</th>
-                        <th>Pelanggan</th>
-                        <th>No. Nota</th>
+                        <th>Pemasok</th>
+                        <th>Barang</th>
+                        <th>Jumlah</th>
                         <th>Status</th>
                         <th>Total Hutang</th>
                         <th>Terbayar</th>
@@ -226,12 +227,13 @@
                         @foreach($hutangList as $hutang)
                             <tr>
                                 <td>{{ $hutang['tanggal'] instanceof \Carbon\Carbon ? $hutang['tanggal']->format('d M Y') : $hutang['tanggal'] }}</td>
-                                <td>{{ $hutang['pelanggan'] }}</td>
-                                <td>{{ $hutang['no_nota'] ?? '-' }}</td>
+                                <td>{{ $hutang['pemasok'] }}</td>
+                                <td>{{ $hutang['barang'] }}</td>
+                                <td>{{ number_format($hutang['jumlah'], 0, ',', '.') }}</td>
                                 <td>
                                     @if($hutang['status_label'] == 'Lunas')
                                         <span style="color: #28a745; font-weight: bold;">{{ $hutang['status_label'] }}</span>
-                                    @elseif($hutang['status_label'] == 'Kurang Bayar')
+                                    @elseif($hutang['status_label'] == 'Sebagian')
                                         <span style="color: #ffc107; font-weight: bold;">{{ $hutang['status_label'] }}</span>
                                     @else
                                         <span style="color: #dc3545; font-weight: bold;">{{ $hutang['status_label'] }}</span>
@@ -243,14 +245,14 @@
                             </tr>
                         @endforeach
                         <tr>
-                            <td colspan="4" style="text-align: center; font-weight: 700;">TOTAL</td>
+                            <td colspan="5" style="text-align: center; font-weight: 700;">TOTAL</td>
                             <td>Rp{{ number_format($totalHutang, 0, ',', '.') }}</td>
                             <td>Rp{{ number_format($totalHutang - ($totalBelumBayar + $totalKurangBayar), 0, ',', '.') }}</td>
                             <td>Rp{{ number_format($totalBelumBayar + $totalKurangBayar, 0, ',', '.') }}</td>
                         </tr>
                     @else
                         <tr>
-                            <td colspan="7" class="no-data">Belum ada data hutang</td>
+                            <td colspan="8" class="no-data">Belum ada data hutang</td>
                         </tr>
                     @endif
                 </tbody>

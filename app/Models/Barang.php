@@ -33,6 +33,44 @@ class Barang extends Model
     }
 
     /**
+     * Relasi ke BarangBatch
+     */
+    public function batches()
+    {
+        return $this->hasMany(BarangBatch::class, 'barang_id');
+    }
+
+    /**
+     * Get total stok dari semua batch yang tersedia
+     */
+    public function getTotalStokAttribute()
+    {
+        return $this->batches()->sum('stok_tersedia');
+    }
+
+    /**
+     * Get batch yang tersedia dengan FIFO/FEFO ordering
+     */
+    public function getAvailableBatches($useFEFO = true)
+    {
+        $query = $this->batches()
+                     ->available()
+                     ->notExpired();
+        
+        return $useFEFO ? $query->FEFO()->get() : $query->FIFO()->get();
+    }
+
+    /**
+     * Update kuantitas berdasarkan total batch
+     * Method ini untuk sinkronisasi dengan sistem lama
+     */
+    public function syncKuantitasFromBatches()
+    {
+        $this->kuantitas = $this->batches()->sum('stok_tersedia');
+        $this->save();
+    }
+
+    /**
      * Boot method to prevent hard deletion if there are related records
      */
     protected static function boot()

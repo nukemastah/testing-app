@@ -204,7 +204,7 @@
         </div>
 
         <div class="table-container">
-            <div class="table-header">Daftar Piutang</div>
+            <div class="table-header">Daftar Piutang Penjualan</div>
             <table class="data-table">
                 <thead>
                     <tr>
@@ -225,12 +225,20 @@
                                 <td>{{ $p['pelanggan'] }}</td>
                                 <td>{{ $p['no_nota'] }}</td>
                                 <td>
-                                    @if($p['status'] == 'lunas')
-                                        <span style="color: #28a745; font-weight: bold;">Lunas</span>
-                                    @elseif($p['status'] == 'sebagian')
-                                        <span style="color: #ffc107; font-weight: bold;">Sebagian</span>
+                                    @if(isset($p['status_label']))
+                                        @if($p['status_label'] == 'Sebagian')
+                                            <span style="color: #ffc107; font-weight: bold;">{{ $p['status_label'] }}</span>
+                                        @else
+                                            <span style="color: #dc3545; font-weight: bold;">{{ $p['status_label'] }}</span>
+                                        @endif
                                     @else
-                                        <span style="color: #dc3545; font-weight: bold;">Belum Bayar</span>
+                                        @if($p['status'] == 'lunas')
+                                            <span style="color: #28a745; font-weight: bold;">Lunas</span>
+                                        @elseif($p['status'] == 'sebagian')
+                                            <span style="color: #ffc107; font-weight: bold;">Sebagian</span>
+                                        @else
+                                            <span style="color: #dc3545; font-weight: bold;">Belum Bayar</span>
+                                        @endif
                                     @endif
                                 </td>
                                 <td>Rp{{ number_format($p['total_harga'], 0, ',', '.') }}</td>

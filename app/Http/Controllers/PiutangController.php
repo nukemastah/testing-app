@@ -27,8 +27,13 @@ class PiutangController extends Controller
             $paid = $nota->pembayarans->sum('jumlah_bayar');
             $outstanding = $nota->total_harga - $paid;
 
-            // Only include if there's outstanding balance
+            // Piutang = Penjualan yang belum dibayar lunas
             if ($outstanding > 0) {
+                $statusLabel = 'Belum Bayar';
+                if ($paid > 0 && $paid < $nota->total_harga) {
+                    $statusLabel = 'Sebagian';
+                }
+
                 $piutangList[] = [
                     'tanggal' => $nota->tanggal,
                     'pelanggan' => $nota->pelanggan ? $nota->pelanggan->nama_pelanggan : 'Walk-in',
@@ -37,6 +42,7 @@ class PiutangController extends Controller
                     'total_bayar' => $paid,
                     'outstanding' => $outstanding,
                     'status' => $nota->status,
+                    'status_label' => $statusLabel,
                 ];
 
                 $totalOutstanding += $outstanding;

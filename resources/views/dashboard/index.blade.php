@@ -27,6 +27,7 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
         }
 
         .header h1 {
@@ -35,6 +36,12 @@
             font-weight: bold;
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-logout {
+            position: absolute;
+            top: 0;
+            right: 0;
         }
 
         .filter-section {
@@ -277,12 +284,9 @@
         }
 
         .logout-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
             background: linear-gradient(135deg, #dc3545, #c82333);
             color: white;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -292,12 +296,11 @@
             letter-spacing: 1px;
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-            z-index: 1000;
         }
 
         .logout-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
         }
 
         /* Arrow icons for pagination */
@@ -318,7 +321,7 @@
 
         /* Print styles */
         @media print {
-            .sidebar, .logout-btn, .pagination-container, .print-btn, .filter-section, .print-all-btn {
+            .sidebar, .header-logout, .pagination-container, .print-btn, .filter-section, .print-all-btn {
                 display: none !important;
             }
             
@@ -384,11 +387,10 @@
                 margin-top: 10px;
             }
             
-            .logout-btn {
-                left: 10px;
-                bottom: 10px;
-                padding: 10px 20px;
-                font-size: 12px;
+            .header-logout {
+                position: static;
+                text-align: center;
+                margin-top: 15px;
             }
 
             .data-table {
@@ -425,6 +427,12 @@
     <div class="main-content">
         <div class="header">
             <h1>DASHBOARD ADMIN</h1>
+            <div class="header-logout">
+                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="logout-btn">LOGOUT</button>
+                </form>
+            </div>
         </div>
 
         <div class="filter-section">
@@ -595,11 +603,6 @@
             </div>
         </div>
     </div>
-    
-    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-        @csrf
-        <button type="submit" class="logout-btn">LOGOUT</button>
-    </form>
 
     <script>
         // Fungsi untuk print semua tabel

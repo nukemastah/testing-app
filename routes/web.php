@@ -66,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/barang/undo', [BarangController::class, 'undo'])->name('barang.undo');
     Route::get('/barang/{id}/add-stock', [BarangController::class, 'showAddStock'])->name('barang.showAddStock');
     Route::post('/barang/{id}/add-stock', [BarangController::class, 'addStock'])->name('barang.addStock');
+    Route::get('/barang/{id}/batches', [BarangController::class, 'showBatches'])->name('barang.batches');
 
     // Master - Pemasok routes
     Route::resource('pemasok', PemasokController::class);

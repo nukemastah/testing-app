@@ -301,6 +301,15 @@
                     @enderror
                 </div>
 
+                <div class="form-group">
+                    <label for="tanggal_kadaluarsa">Tanggal Kadaluarsa (Opsional)</label>
+                    <input type="date" id="tanggal_kadaluarsa" name="tanggal_kadaluarsa" value="{{ old('tanggal_kadaluarsa') }}" min="{{ date('Y-m-d') }}">
+                    <small style="color: #666; font-size: 12px;">Kosongkan jika barang tidak memiliki tanggal kadaluarsa</small>
+                    @error('tanggal_kadaluarsa')
+                        <div class="error-message">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <!-- Summary Section -->
                 <div class="summary-box">
                     <div class="summary-row">

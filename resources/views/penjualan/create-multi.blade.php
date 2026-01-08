@@ -357,6 +357,12 @@
             `;
             tbody.appendChild(newRow);
             itemCount++;
+            
+            // Auto-populate harga jual untuk barang pertama di dropdown
+            const select = newRow.querySelector('.barang-select');
+            if (select && select.value) {
+                updateHargaJual(select);
+            }
         }
 
         function removeItem(btn) {

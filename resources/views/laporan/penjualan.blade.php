@@ -288,7 +288,7 @@
                 <thead>
                     <tr>
                         <th>Tanggal</th>
-                        <th>Nomor Invoice</th>
+                        <th>No. Nota</th>
                         <th>Pelanggan</th>
                         <th>Total Barang</th>
                         <th>Total Harga</th>
@@ -299,9 +299,9 @@
                         @foreach($penjualanList as $p)
                             <tr>
                                 <td>{{ $p->tanggal instanceof \Carbon\Carbon ? $p->tanggal->format('d M Y') : $p->tanggal }}</td>
-                                <td>{{ $p->id }}</td>
+                                <td>{{ $p->no_nota }}</td>
                                 <td>{{ $p->pelanggan ? $p->pelanggan->nama_pelanggan : 'Walk-in' }}</td>
-                                <td>{{ $p->jumlah }}</td>
+                                <td>{{ $p->details->sum('quantity') }}</td>
                                 <td>Rp{{ number_format($p->total_harga, 0, ',', '.') }}</td>
                             </tr>
                         @endforeach
